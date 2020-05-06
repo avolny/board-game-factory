@@ -30,10 +30,12 @@ for i in range(3):
         y = 5
         w = 30
         h = 30
-        text_rect = Rectangle(perc(x + w * i), perc(y + h * j),  perc(w), perc(h), stroke_width=1, stroke_color=COLOR_BLACK,
+        text_rect = Rectangle(perc(x + w * i), perc(y + h * j), perc(w), perc(h), stroke_width=1, stroke_color=COLOR_BLACK,
                               fill_color=COLOR_TRANSPARENT)
-        text = Text('3%', '3%', '94%', '94%', "This is\ntext", font_size=20, halign=haligns[i], valign=valigns[j], spacing=-3,
-                    yoffset=-4)
+        # text = Text('3%', '3%', '94%', '94%', "This is\ntext", font_size=20, halign=haligns[i], valign=valigns[j], spacing=-3,
+        #             yoffset=-4)
+        text = Text('3%', '3%', 'infer', 'infer', "This is\ntext", font_size=20, halign=haligns[i], valign=valigns[j],
+                    spacing=-3, yoffset=-4)
 
         text_rect.add(text)
 

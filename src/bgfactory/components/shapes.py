@@ -3,11 +3,11 @@ from PIL.ImageDraw import floodfill, ImageDraw
 
 import src.bgfactory.pil_patch.rounded_rectangle
 
-from src.bgfactory.components.component import Component
+from src.bgfactory.components.component import Component, Container
 from src.bgfactory.components.constants import COLOR_BLACK, COLOR_WHITE
 
 
-class Shape(Component):
+class Shape(Container):
     
     def __init__(self, x, y, w, h, stroke_width=3, stroke_color=COLOR_BLACK, fill_color=COLOR_WHITE):
         self.stroke_width = stroke_width

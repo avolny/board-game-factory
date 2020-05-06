@@ -2,7 +2,7 @@ from PIL import Image, ImageFont
 from PIL.ImageDraw import ImageDraw
 
 from src.bgfactory.components.component import Component
-from src.bgfactory.components.constants import COLOR_BLACK
+from src.bgfactory.components.constants import COLOR_BLACK, INFER, COLOR_TRANSPARENT
 
 
 class Text(Component):
@@ -13,6 +13,8 @@ class Text(Component):
     VALIGN_TOP = 'top'
     VALIGN_MIDDLE = 'middle'
     VALIGN_BOTTOM = 'bottom'
+    
+    _dummy_image = Image.new('RGBA', (1920, 1080), COLOR_TRANSPARENT)
     
     def __init__(self, x, y, w, h, text, font="FELIXTI.TTF", font_size=50, spacing=15, halign=HALIGN_LEFT,
                  valign=VALIGN_TOP, color=COLOR_BLACK, stroke_width=0, stroke_color=None,
@@ -41,11 +43,10 @@ class Text(Component):
         draw = ImageDraw(im)
         
         w, h = im.size
+
+        wtext, htext = self._get_text_size()
         
-        font = ImageFont.truetype(self.font, size=self.font_size, index=0, encoding='unic')
-        
-        wtext, htext = draw.multiline_textsize(
-            text=self.text, font=font, spacing=self.spacing, stroke_width=self.stroke_width)
+        htext += self.yoffset
         
         x = 0
         y = self.yoffset
@@ -59,8 +60,30 @@ class Text(Component):
             y = int(round(h / 2 - htext / 2)) + self.yoffset
         if (self.valign == self.VALIGN_BOTTOM):
             y = int(round(h - htext)) + self.yoffset
+
+        print(x, y)
             
         draw.text(
-            xy=(x, y), text=self.text, fill=self.color, font=font, spacing=self.spacing,
+            xy=(x, y), text=self.text, fill=self.color, font=self._get_font(), spacing=self.spacing,
             align=self.halign, stroke_width=self.stroke_width, stroke_fill=self.stroke_color
         )
+        
+    def _get_font(self):
+        return ImageFont.truetype(self.font, size=self.font_size, index=0, encoding='unic')
+        
+    def _get_text_size(self):
+        draw = ImageDraw(self._dummy_image)
+        
+        return draw.multiline_textsize(
+            text=self.text, font=self._get_font(), spacing=self.spacing, stroke_width=self.stroke_width)
+        
+    def get_size(self):
+        w, h = self.w, self.h
+        tw, th = self._get_text_size()
+        
+        if w == INFER:
+            w = tw
+        if h == INFER:
+            h = th + self.yoffset
+        
+        return w, h

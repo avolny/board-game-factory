@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from PIL import Image
 
@@ -9,22 +9,15 @@ from src.bgfactory.components.layout_manager import AbsoluteLayout
 class Component(ABC):
     
     
-    def __init__(self, x, y, w, h, layout=None):
+    def __init__(self, x, y, w, h):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
-        self.children = []
-        
-        if layout is None:
-            self.layout = AbsoluteLayout()
-        else:
-            self.layout = layout
-            
-        self.layout.set_parent(self)
     
+    @abstractmethod
     def _draw(self, im: Image):
-        self.layout._draw(im)
+        pass
     
     def _mask(self):
         return Image.new('RGBA', (self.w, self.h), COLOR_TRANSPARENT)
@@ -49,14 +42,35 @@ class Component(ABC):
 
         return im
     
+    @abstractmethod
     def get_size(self):
-        return self.layout.get_size()
+        pass
     
     def clone(self):
         pass
+        
+        
+class Container(Component):
+    
+    def __init__(self, x, y, w, h, layout=None):
+
+        self.children = []
+
+        if layout is None:
+            self.layout = AbsoluteLayout()
+        else:
+            self.layout = layout
+
+        self.layout.set_parent(self)
+
+        super(Container, self).__init__(x, y, w, h)
+    
+    def get_size(self):
+        return self.layout.get_size()
     
     def add(self, child):
         self.layout.validate_child(child)
         self.children.append(child)
-        
-        
+    
+    def _draw(self, im):
+        self.layout._draw(im)
