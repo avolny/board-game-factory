@@ -1,4 +1,4 @@
-from PIL.ImageDraw import ImageDraw, floodfill
+from PIL.ImageDraw import ImageDraw
 
 
 def rounded_rectangle(self: ImageDraw, xy, corner_radius, outline=None, width=1):

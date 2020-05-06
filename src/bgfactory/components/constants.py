@@ -1,0 +1,7 @@
+
+
+COLOR_BLACK = (0, 0, 0, 255)
+COLOR_WHITE = (255, 255, 255, 255)
+COLOR_TRANSPARENT = (0, 0, 0, 0)
+FILL = 'fill'
+INFER = 'infer'

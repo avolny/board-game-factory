@@ -1,10 +1,10 @@
 from PIL import Image
-from PIL import ImageDraw
-from PIL.ImageDraw import floodfill
+from PIL.ImageDraw import floodfill, ImageDraw
 
 import src.bgfactory.pil_patch.rounded_rectangle
 
-from src.bgfactory.components.component import Component, COLOR_TRANSPARENT, COLOR_WHITE, COLOR_BLACK
+from src.bgfactory.components.component import Component
+from src.bgfactory.components.constants import COLOR_BLACK, COLOR_WHITE
 
 
 class Shape(Component):
@@ -24,9 +24,10 @@ class Shape(Component):
 class Rectangle(Shape):
     
     def _draw(self, im: Image):
-        draw = ImageDraw.Draw(im)
+        draw = ImageDraw(im)
+        w, h = im.size
         
-        draw.rectangle(((self.x, self.y), (self.x + self.w - 1, self.y + self.h - 1)), 
+        draw.rectangle(((0, 0), (w - 1, h - 1)), 
                        outline=self.stroke_color, width=self.stroke_width, fill=self.fill_color)
         
         super(Rectangle, self)._draw(im)
@@ -45,20 +46,22 @@ class RoundedRectangle(Shape):
         super(Shape, self).scale(val)
     
     def _draw(self, im: Image):
-        draw = ImageDraw.Draw(im)
+        draw = ImageDraw(im)
+        w, h = im.size
 
-        draw.rounded_rectangle(((self.x, self.y), (self.x + self.w - 1, self.y + self.h - 1)),
+        draw.rounded_rectangle(((0, 0), (w - 1, h - 1)),
                        corner_radius=self.radius, outline=self.stroke_color, width=self.stroke_width)
-        floodfill(im, (int((self.x + self.x + self.w - 1) / 2), int((self.y + self.y + self.h - 1) / 2)), self.fill_color)
+        floodfill(im, (int((w - 1) / 2), int((h - 1) / 2)), self.fill_color)
 
         super(RoundedRectangle, self)._draw(im)
 
 
 class Ellipse(Shape):
     def _draw(self, im: Image):
-        draw = ImageDraw.Draw(im)
+        draw = ImageDraw(im)
+        w, h = im.size
 
-        draw.rectangle(((self.x, self.y), (self.x + self.w - 1, self.y + self.h - 1)),
+        draw.rectangle(((0, 0), (w - 1, h - 1)),
                        outline=self.stroke_color, width=self.stroke_width, fill=self.fill_color)
 
         super(Ellipse, self)._draw(im)

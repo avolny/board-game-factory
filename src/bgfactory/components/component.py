@@ -1,26 +1,33 @@
 from abc import ABC
+
 from PIL import Image
 
-
-COLOR_BLACK = (0, 0, 0, 255)
-COLOR_WHITE = (255, 255, 255, 255)
-COLOR_TRANSPARENT = (0, 0, 0, 0)
+from src.bgfactory.components.constants import COLOR_TRANSPARENT
+from src.bgfactory.components.layout_manager import AbsoluteLayout
 
 
 class Component(ABC):
     
-    def __init__(self, x, y, w, h):
+    
+    def __init__(self, x, y, w, h, layout=None):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
         self.children = []
+        
+        if layout is None:
+            self.layout = AbsoluteLayout()
+        else:
+            self.layout = layout
+            
+        self.layout.set_parent(self)
     
     def _draw(self, im: Image):
-        for child in self.children:
-            im_ = Image.new('RGBA', (self.w, self.h), COLOR_TRANSPARENT)
-            child._draw(im_)
-            im.paste(im_, (self.x, self.y), im_)
+        self.layout._draw(im)
+    
+    def _mask(self):
+        return Image.new('RGBA', (self.w, self.h), COLOR_TRANSPARENT)
     
     def scale(self, val):
         self.x = int(self.x * val)
@@ -31,14 +38,25 @@ class Component(ABC):
         for child in self.children:
             child.scale(val)
 
-    def image(self):
-        im = Image.new('RGBA', (self.w + self.x, self.h + self.y), COLOR_TRANSPARENT)
+    def image(self, w=None, h=None):
+        if w is None:
+            w = self.w
+        if h is None:
+            h = self.h
+            
+        im = Image.new('RGBA', (w, h), COLOR_TRANSPARENT)
         self._draw(im)
 
         return im
+    
+    def get_size(self):
+        return self.layout.get_size()
     
     def clone(self):
         pass
     
     def add(self, child):
+        self.layout.validate_child(child)
         self.children.append(child)
+        
+        
