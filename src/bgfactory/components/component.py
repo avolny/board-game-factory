@@ -2,19 +2,25 @@ from abc import ABC, abstractmethod
 
 from PIL import Image
 
-from src.bgfactory.components.constants import COLOR_TRANSPARENT
+from src.bgfactory.components.constants import COLOR_TRANSPARENT, FILL
 from src.bgfactory.components.layout_manager import AbsoluteLayout
 
 
 class Component(ABC):
     
     
-    def __init__(self, x, y, w, h):
+    def __init__(self, x, y, w, h, margin=(0,0,0,0)):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
-    
+        self.margin = margin
+        
+        if w == FILL:
+            raise NotImplementedError()
+        if h == FILL:
+            raise NotImplementedError()
+
     @abstractmethod
     def _draw(self, im: Image):
         pass
@@ -23,13 +29,16 @@ class Component(ABC):
         return Image.new('RGBA', (self.w, self.h), COLOR_TRANSPARENT)
     
     def scale(self, val):
-        self.x = int(self.x * val)
-        self.y = int(self.y * val)
-        self.w = int(self.w * val)
-        self.h = int(self.h * val)
-        
-        for child in self.children:
-            child.scale(val)
+        if isinstance(self.x, int):
+            self.x = int(self.x * val)
+        if isinstance(self.y, int):
+            self.y = int(self.y * val)
+        if isinstance(self.w, int):
+            self.w = int(self.w * val)
+        if isinstance(self.h, int):
+            self.h = int(self.h * val)
+
+        self.margin = [int(round(e * val)) for e in self.margin]
 
     def image(self, w=None, h=None):
         if w is None:
@@ -52,7 +61,7 @@ class Component(ABC):
         
 class Container(Component):
     
-    def __init__(self, x, y, w, h, layout=None):
+    def __init__(self, x, y, w, h, margin=(0,0,0,0), padding=(0, 0, 0, 0), layout=None):
 
         self.children = []
 
@@ -60,10 +69,11 @@ class Container(Component):
             self.layout = AbsoluteLayout()
         else:
             self.layout = layout
-
+        
+        self.padding = padding
         self.layout.set_parent(self)
 
-        super(Container, self).__init__(x, y, w, h)
+        super(Container, self).__init__(x, y, w, h, margin)
     
     def get_size(self):
         return self.layout.get_size()
@@ -74,3 +84,11 @@ class Container(Component):
     
     def _draw(self, im):
         self.layout._draw(im)
+        
+    def scale(self, val):
+        for child in self.children:
+            child.scale(val)
+            
+        self.padding = [int(round(e * val)) for e in self.padding]
+            
+        super(Container, self).scale(val)

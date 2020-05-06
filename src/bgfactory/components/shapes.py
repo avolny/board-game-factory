@@ -5,16 +5,18 @@ import src.bgfactory.pil_patch.rounded_rectangle
 
 from src.bgfactory.components.component import Component, Container
 from src.bgfactory.components.constants import COLOR_BLACK, COLOR_WHITE
+from src.bgfactory.components.layout_manager import AbsoluteLayout
 
 
 class Shape(Container):
     
-    def __init__(self, x, y, w, h, stroke_width=3, stroke_color=COLOR_BLACK, fill_color=COLOR_WHITE):
+    def __init__(self, x, y, w, h, stroke_width=3, stroke_color=COLOR_BLACK, 
+                 fill_color=COLOR_WHITE, layout=None, margin=(0,0,0,0), padding=(0,0,0,0)):
         self.stroke_width = stroke_width
         self.stroke_color = stroke_color
         self.fill_color = fill_color
         
-        super(Shape, self).__init__(x, y, w, h)
+        super(Shape, self).__init__(x, y, w, h, margin, [e + stroke_width for e in padding], layout)
     
     def scale(self, val):
         self.stroke_width = int(self.stroke_width * val)
@@ -36,10 +38,12 @@ class Rectangle(Shape):
 class RoundedRectangle(Shape):
     
     
-    def __init__(self, x, y, w, h, radius=10, stroke_width=3, stroke_color = COLOR_BLACK, fill_color = COLOR_WHITE):
+    def __init__(
+            self, x, y, w, h, radius=10, stroke_width=3, stroke_color=COLOR_BLACK, 
+            fill_color=COLOR_WHITE, layout=None, margin=(0,0,0,0), padding=(0,0,0,0)):
         self.radius = radius
         
-        super(RoundedRectangle, self).__init__(x, y, w, h, stroke_width, stroke_color, fill_color)
+        super(RoundedRectangle, self).__init__(x, y, w, h, stroke_width, stroke_color, fill_color, layout, margin, padding)
         
     def scale(self, val):
         self.radius = int(self.radius * val)
