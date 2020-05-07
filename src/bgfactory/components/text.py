@@ -1,8 +1,8 @@
 from PIL import Image, ImageFont
 from PIL.ImageDraw import ImageDraw
 
-from src.bgfactory.components.component import Component
-from src.bgfactory.components.constants import COLOR_BLACK, INFER, COLOR_TRANSPARENT, HALIGN_LEFT, VALIGN_TOP, \
+from bgfactory.components.component import Component
+from bgfactory.components.constants import COLOR_BLACK, INFER, COLOR_TRANSPARENT, HALIGN_LEFT, VALIGN_TOP, \
     HALIGN_CENTER, HALIGN_RIGHT, VALIGN_MIDDLE, VALIGN_BOTTOM
 
 

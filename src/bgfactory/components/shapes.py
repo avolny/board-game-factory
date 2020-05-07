@@ -1,11 +1,11 @@
 from PIL import Image
 from PIL.ImageDraw import floodfill, ImageDraw
 
-import src.bgfactory.pil_patch.rounded_rectangle
+import bgfactory.pil_patch.rounded_rectangle
 
-from src.bgfactory.components.component import Component, Container
-from src.bgfactory.components.constants import COLOR_BLACK, COLOR_WHITE
-from src.bgfactory.components.layout_manager import AbsoluteLayout
+from bgfactory.components.component import Component, Container
+from bgfactory.components.constants import COLOR_BLACK, COLOR_WHITE
+from bgfactory.components.layout_manager import AbsoluteLayout
 
 
 class Shape(Container):
@@ -36,7 +36,6 @@ class Rectangle(Shape):
 
 
 class RoundedRectangle(Shape):
-    
     
     def __init__(
             self, x, y, w, h, radius=10, stroke_width=3, stroke_color=COLOR_BLACK, 

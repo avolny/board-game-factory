@@ -1,12 +1,12 @@
 
 from PIL import Image, ImageDraw
 
-from src.bgfactory.components.constants import COLOR_BLACK, COLOR_TRANSPARENT
-from src.bgfactory.components.text import Text
-from src.bgfactory.components.utils import perc
-from src.bgfactory.pil_patch import *
+from bgfactory.components.constants import COLOR_BLACK, COLOR_TRANSPARENT
+from bgfactory.components.text import Text
+from bgfactory.components.utils import perc
+from bgfactory.pil_patch import *
 
-from src.bgfactory.components.shapes import *
+from bgfactory.components.shapes import *
 
 path = 'output/'
 

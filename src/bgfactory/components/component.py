@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 
 from PIL import Image
 
-from src.bgfactory.components.constants import COLOR_TRANSPARENT, FILL
-from src.bgfactory.components.layout_manager import AbsoluteLayout
+from bgfactory.components.constants import COLOR_TRANSPARENT, FILL
+from bgfactory.components.layout_manager import AbsoluteLayout
 
 
 class Component(ABC):

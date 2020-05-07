@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 
 from PIL import Image
 
-from src.bgfactory.components.utils import parse_percent, is_percent
-from src.bgfactory.components.constants import INFER, FILL, HALIGN_LEFT, HALIGN_CENTER, HALIGN_RIGHT
+from bgfactory.components.utils import parse_percent, is_percent
+from bgfactory.components.constants import INFER, FILL, HALIGN_LEFT, HALIGN_CENTER, HALIGN_RIGHT
 
 
 class LayoutError(ValueError):
@@ -213,16 +213,23 @@ class VerticalFlowLayout(LayoutManager):
         max_w = 0
         # infer required dimensions
         # x, y = self.padding[:2]
-        y = 0
+        y = self.parent.padding[1]
+        
+        prev_margin = 0
         
         for i, child in enumerate(self.parent.children):
             cw, ch = child.get_size()    
 
             if self.parent.w == INFER:
-                max_w = max(max_w, cw + self.padding[0] + self.padding[2])
+                max_w = max(
+                    max_w, cw + self.parent.padding[0] + self.parent.padding[2] + child.margin[0] + child.margin[2])
 
             if self.parent.h == INFER:
-                y += ch + self.padding[1] + self.padding[3]
+                y += ch + max(prev_margin, child.margin[1])
+                
+            prev_margin = child.margin[3]
+            
+        y += max(0, prev_margin) + self.parent.padding[3]
 
         w = max_w or w
         h = y or h
