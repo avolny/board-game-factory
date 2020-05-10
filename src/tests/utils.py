@@ -1,8 +1,16 @@
+import os
+from abc import abstractmethod
+from unittest import TestCase
+
 from PIL import Image
 
 
-def get_reference_img_path(*args):
-    return '../../assets/tests/reference/' + '_'.join(map(str, args)) + '.png'
+def get_reference_img_path(folder, *args):
+    return get_reference_dir_path(folder) + '_'.join(map(str, args)) + '.png'
+
+
+def get_reference_dir_path(folder):
+    return 'assets/tests/reference/' + folder + '/'
 
 
 def assert_images_equal(im1: Image, im2: Image):
@@ -10,4 +18,39 @@ def assert_images_equal(im1: Image, im2: Image):
     assert im1.size == im2.size
     
     for pix1, pix2 in zip(im1.getdata(), im2.getdata()):
-        assert pix1 == pix2, pix1 + " " + pix2
+        assert pix1 == pix2, str(pix1) + " " + str(pix2)
+        
+        
+class ComponentRegressionTestCase(TestCase):
+    
+    
+    @staticmethod
+    def generate_test_variants():
+        pass
+
+    @staticmethod
+    def generate_component(*args):
+        pass
+    
+    @classmethod
+    def generate_reference(cls):
+        os.makedirs(get_reference_dir_path(cls.__name__), exist_ok=True)
+        
+        print('Generating:   ' + get_reference_dir_path(cls.__name__))
+        
+        variants = cls.generate_test_variants()
+
+        for args in variants:
+            component = cls.generate_component(*args)
+
+            im = component.image()
+            im.save(get_reference_img_path(cls.__name__, *args))
+    
+    def execute(self):
+
+        for args in self.generate_test_variants():
+            im = self.generate_component(*args).image()
+
+            im_ref = Image.open(get_reference_img_path(type(self).__name__, *args))
+
+            assert_images_equal(im_ref, im)
