@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 
-from PIL import Image
+import cairocffi as cairo
 
 from bgfactory.components.utils import parse_percent, is_percent
 from bgfactory.components.constants import INFER, FILL, HALIGN_LEFT, HALIGN_CENTER, HALIGN_RIGHT
-from bgfactory.profiler import profile
+from bgfactory.common.profiler import profile
 
 
 class LayoutError(ValueError):
@@ -20,7 +20,7 @@ class LayoutManager(ABC):
         self.parent = parent
     
     @abstractmethod
-    def _draw(self, im: Image):
+    def _draw(self, surface: cairo.Surface, w, h):
         pass
     
     @abstractmethod
@@ -41,9 +41,6 @@ class AbsoluteLayout(LayoutManager):
         - if parent dimension is not INFER, child dimension and location can be pixels or percentage
         
     """
-    
-    def __init__(self):
-        pass
     
     def get_size(self):
         w, h = None, None
@@ -85,8 +82,9 @@ class AbsoluteLayout(LayoutManager):
         if self.parent.h == INFER and (is_percent(child.h) or is_percent(child.y)):
             raise LayoutError('height="n%" or y="n%" is not allowed when parent height=="infer"')
 
-    def _draw(self, im: Image):
-        w, h = im.size
+    def _draw(self, surface: cairo.Surface, w, h):
+        
+        cr = cairo.Context(surface)
         
         for child in self.parent.children:
             # im_ = Image.new('RGBA', (self.w, self.h), COLOR_TRANSPARENT)
@@ -105,18 +103,16 @@ class AbsoluteLayout(LayoutManager):
             if is_percent(cy):
                 cy = int(parse_percent(cy) * h)
             
-            im_ = child.image(cw, ch)
+            child_surface = child.draw(cw, ch)
 
             # im_ = child.image(cw, ch)
             # child._draw(im_)
             
-            profile('AbsoluteLayout.alpha_composite')
-            im__ = Image.new('RGBA', im.size)
-            im__.paste(im_, (cx, cy))
-            im.paste(Image.alpha_composite(im, im__), (0, 0))
+            profile('paint child surface')
+            cr.set_source_surface(child_surface, cx, cy)
+            cr.paint()
             profile()
-    
-
+            
 # class FlowLayoutHorizontal(LayoutManager):
 #     
 #     def __init__(self, padding=(5,5)):
@@ -162,13 +158,15 @@ class VerticalFlowLayout(LayoutManager):
         """
         self.halign = halign
 
-    def _draw(self, im: Image):
+    def _draw(self, surface:cairo.Surface, w, h):
+
+        cr = cairo.Context(surface)
+        
         children = self.parent.children
-        w, h = im.size
         w_adj = w - self.parent.padding[0] - self.parent.padding[2]
         h_adj = h - self.parent.padding[1] - self.parent.padding[3]
 
-        x, y = self.parent.padding[:2]
+        x, cy = self.parent.padding[:2]
         
         prev_margin = 0
         
@@ -192,26 +190,23 @@ class VerticalFlowLayout(LayoutManager):
             cw = min(cw, w_adj)
             
             if self.halign == HALIGN_LEFT:
-                x_ = x + child.margin[0]
+                cx = x + child.margin[0]
             elif self.halign == HALIGN_CENTER:
-                x_ = x + child.margin[0] + int(round(w_adj / 2 - cw / 2)) 
+                cx = x + child.margin[0] + int(round(w_adj / 2 - cw / 2)) 
             elif self.halign == HALIGN_RIGHT:
-                x_ = x + child.margin[0] + w_adj - cw
+                cx = x + child.margin[0] + w_adj - cw
                 
-            y += max(prev_margin, child.margin[1])
+            cy += max(prev_margin, child.margin[1])
             prev_margin = child.margin[3] 
             
-            im_ = child.image(cw, ch)
-            # child._draw(im_)
+            child_surface = child.draw(cw, ch)
 
-            profile('VerticalFlowLayout.alpha_composite')
-            im__ = Image.new('RGBA', im.size)
-            im__.paste(im_, (x_, y))
-            
-            im.paste(Image.alpha_composite(im, im__), (0, 0))
+            profile('paint child surface')
+            cr.set_source_surface(child_surface, cx, cy)
+            cr.paint()
             profile()
 
-            y += ch
+            cy += ch
 
     def get_size(self):
         w, h = None, None
