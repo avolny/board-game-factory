@@ -145,7 +145,7 @@ class TextMarkup(_TextComponent):
     def _draw(self, surface, x, y):
         cr = cairo.Context(surface)
 
-        print(x, y)
+        # print(x, y)
 
         pc_layout = self._get_pc_layout(cr)
 
@@ -172,8 +172,8 @@ class TextMarkup(_TextComponent):
             x, y, w, h = base_x + ext.x / PANGO_SCALE, base_y + ext.y / PANGO_SCALE, ext.width / PANGO_SCALE, ext.height / PANGO_SCALE
             
             if char in self.text_replace_map:
-                print(layout_iter.get_index())
-                print(x, y, w, h)
+                # print(layout_iter.get_index())
+                # print(x, y, w, h)
                 
                 glyph = self.text_replace_map[char]
                 
@@ -212,8 +212,8 @@ class TextMarkup(_TextComponent):
 
         ink, logical = pc_layout.get_extents()
 
-        print(ink.x / PANGO_SCALE, ink.y / PANGO_SCALE, ink.width / PANGO_SCALE, ink.height / PANGO_SCALE)
-        print(logical.x / PANGO_SCALE, logical.y / PANGO_SCALE, logical.width / PANGO_SCALE, logical.height / PANGO_SCALE)
+        # print(ink.x / PANGO_SCALE, ink.y / PANGO_SCALE, ink.width / PANGO_SCALE, ink.height / PANGO_SCALE)
+        # print(logical.x / PANGO_SCALE, logical.y / PANGO_SCALE, logical.width / PANGO_SCALE, logical.height / PANGO_SCALE)
 
         return ink.x / PANGO_SCALE, logical.y / PANGO_SCALE, ink.width / PANGO_SCALE, logical.height / PANGO_SCALE
 
