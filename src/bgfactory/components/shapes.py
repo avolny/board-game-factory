@@ -6,6 +6,8 @@ import bgfactory.pil_patch.rounded_rectangle
 from bgfactory.components.component import Component, Container
 from bgfactory.components.constants import COLOR_BLACK, COLOR_WHITE
 from bgfactory.components.layout_manager import AbsoluteLayout
+from bgfactory.pil_patch.rounded_rectangle import draw_rounded_rectangle
+from bgfactory.profiler import profile
 
 
 class Shape(Container):
@@ -26,11 +28,14 @@ class Shape(Container):
 class Rectangle(Shape):
     
     def _draw(self, im: Image):
+        profile('ImageDraw')
         draw = ImageDraw(im)
         w, h = im.size
-        
+
+        profile('draw.rectangle')
         draw.rectangle(((0, 0), (w - 1, h - 1)), 
                        outline=self.stroke_color, width=self.stroke_width, fill=self.fill_color)
+        profile()
         
         super(Rectangle, self)._draw(im)
 
@@ -49,12 +54,21 @@ class RoundedRectangle(Shape):
         super(Shape, self).scale(val)
     
     def _draw(self, im: Image):
-        draw = ImageDraw(im)
+        profile('ImageDraw')
+        # draw = ImageDraw(im)
         w, h = im.size
+        
+        profile('draw.rounded_rectangle')
+        im_ = draw_rounded_rectangle(w, h, ((0, 0), (w, h)), self.radius, self.stroke_color, self.fill_color, self.stroke_width)
 
-        draw.rounded_rectangle(((0, 0), (w - 1, h - 1)),
-                       corner_radius=self.radius, outline=self.stroke_color, width=self.stroke_width)
-        floodfill(im, (int((w - 1) / 2), int((h - 1) / 2)), self.fill_color)
+        profile('paste.rounder_rectangle')
+        im.paste(im_, (0, 0), im_)
+        
+        # draw.rounded_rectangle(((0, 0), (w - 1, h - 1)),
+        #                corner_radius=self.radius, outline=self.stroke_color, width=self.stroke_width)
+        # profile('draw.floodfill')
+        # floodfill(im, (int((w - 1) / 2), int((h - 1) / 2)), self.fill_color)
+        profile()
 
         super(RoundedRectangle, self)._draw(im)
 

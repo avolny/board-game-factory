@@ -4,6 +4,7 @@ from PIL.ImageDraw import ImageDraw
 from bgfactory.components.component import Component
 from bgfactory.components.constants import COLOR_BLACK, INFER, COLOR_TRANSPARENT, HALIGN_LEFT, VALIGN_TOP, \
     HALIGN_CENTER, HALIGN_RIGHT, VALIGN_MIDDLE, VALIGN_BOTTOM
+from bgfactory.profiler import profile
 
 
 class Text(Component):
@@ -35,11 +36,15 @@ class Text(Component):
         super(Text, self).scale(val)
         
     def _draw(self, im: Image):
+        profile('ImageDraw')
         draw = ImageDraw(im)
+        profile()
         
         w, h = im.size
-
+        
+        profile('_get_text_size')
         wtext, htext = self._get_text_size()
+        profile()
         
         htext += self.yoffset
         
@@ -57,11 +62,13 @@ class Text(Component):
             y = int(round(h - htext)) + self.yoffset
 
         # print(x, y)
-            
+        
+        profile('draw.text')
         draw.text(
             xy=(x, y), text=self.text, fill=self.color, font=self._get_font(), spacing=self.spacing,
             align=self.halign, stroke_width=self.stroke_width, stroke_fill=self.stroke_color
         )
+        profile()
         
     def _get_font(self):
         return ImageFont.truetype(self.font, size=self.font_size, index=0, encoding='unic')

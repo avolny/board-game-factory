@@ -4,6 +4,7 @@ from PIL import Image
 
 from bgfactory.components.utils import parse_percent, is_percent
 from bgfactory.components.constants import INFER, FILL, HALIGN_LEFT, HALIGN_CENTER, HALIGN_RIGHT
+from bgfactory.profiler import profile
 
 
 class LayoutError(ValueError):
@@ -68,9 +69,9 @@ class AbsoluteLayout(LayoutManager):
                 
             if self.parent.h == INFER:
                 max_h = max(max_h, ch + cy) 
-                
-        w = max_w or w
-        h = max_h or h
+        
+        w = max_w or w or 0
+        h = max_h or h or 0
         
         return w, h
     
@@ -105,9 +106,17 @@ class AbsoluteLayout(LayoutManager):
                 cy = int(parse_percent(cy) * h)
             
             im_ = child.image(cw, ch)
-            im.paste(im_, (cx, cy), im_)
+
+            # im_ = child.image(cw, ch)
+            # child._draw(im_)
+            
+            profile('AbsoluteLayout.alpha_composite')
+            im__ = Image.new('RGBA', im.size)
+            im__.paste(im_, (cx, cy))
+            im.paste(Image.alpha_composite(im, im__), (0, 0))
+            profile()
     
-#     
+
 # class FlowLayoutHorizontal(LayoutManager):
 #     
 #     def __init__(self, padding=(5,5)):
@@ -188,13 +197,19 @@ class VerticalFlowLayout(LayoutManager):
                 x_ = x + child.margin[0] + int(round(w_adj / 2 - cw / 2)) 
             elif self.halign == HALIGN_RIGHT:
                 x_ = x + child.margin[0] + w_adj - cw
-            
+                
             y += max(prev_margin, child.margin[1])
             prev_margin = child.margin[3] 
             
             im_ = child.image(cw, ch)
-            child._draw(im_)
-            im.paste(im_, (x_, y), im_)
+            # child._draw(im_)
+
+            profile('VerticalFlowLayout.alpha_composite')
+            im__ = Image.new('RGBA', im.size)
+            im__.paste(im_, (x_, y))
+            
+            im.paste(Image.alpha_composite(im, im__), (0, 0))
+            profile()
 
             y += ch
 
@@ -218,7 +233,7 @@ class VerticalFlowLayout(LayoutManager):
         prev_margin = 0
         
         for i, child in enumerate(self.parent.children):
-            cw, ch = child.get_size()    
+            cw, ch = child.get_size()
 
             if self.parent.w == INFER:
                 max_w = max(
@@ -230,9 +245,10 @@ class VerticalFlowLayout(LayoutManager):
             prev_margin = child.margin[3]
             
         y += max(0, prev_margin) + self.parent.padding[3]
-
-        w = max_w or w
-        h = y or h
+        
+        
+        w = max_w or w or 0
+        h = y or h or 0
 
         return w, h
         

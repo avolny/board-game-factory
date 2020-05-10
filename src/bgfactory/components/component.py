@@ -4,6 +4,7 @@ from PIL import Image
 
 from bgfactory.components.constants import COLOR_TRANSPARENT, FILL
 from bgfactory.components.layout_manager import AbsoluteLayout
+from bgfactory.profiler import profile
 
 
 class Component(ABC):
@@ -45,8 +46,10 @@ class Component(ABC):
             w = self.w
         if h is None:
             h = self.h
-            
+
+        profile('Image.new')
         im = Image.new('RGBA', (w, h), COLOR_TRANSPARENT)
+        profile()
         self._draw(im)
 
         return im
