@@ -5,7 +5,7 @@ import cairocffi as cairo
 
 from bgfactory.components.cairo_helpers import image_from_surface
 from bgfactory.components.constants import FILL
-from bgfactory.components.layout_manager import AbsoluteLayout
+from bgfactory.components.layout.absolute_layout import AbsoluteLayout
 from bgfactory.common.profiler import profile
 
 
@@ -18,11 +18,6 @@ class Component(ABC):
         self.h = h
         self.margin = margin
         
-        if self.w == FILL:
-            raise NotImplementedError()
-        if self.h == FILL:
-            raise NotImplementedError()
-
     @abstractmethod
     def draw(self, w, h):
         profile('cairo.ImageSurface')
@@ -72,7 +67,7 @@ class Container(Component):
     
     def draw(self, w, h):
         
-        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, int(w), int(h))
         
         self._draw(surface, w, h)
         self.layout._draw(surface, w, h)

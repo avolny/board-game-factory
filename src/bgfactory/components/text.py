@@ -10,12 +10,10 @@ import pangocairocffi as pc
 from bgfactory.components.component import Component
 from bgfactory.components.constants import COLOR_BLACK, INFER, HALIGN_LEFT, VALIGN_TOP, \
     HALIGN_CENTER, HALIGN_RIGHT, VALIGN_MIDDLE, VALIGN_BOTTOM
-from bgfactory.components.layout_manager import VerticalFlowLayout
 from bgfactory.components.shapes import Rectangle
 from bgfactory.components.pango_helpers import PANGO_SCALE, convert_to_pango_align
 from bgfactory.common.profiler import profile
 
-import numpy as np
 
 class FontDescription():
     
