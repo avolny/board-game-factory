@@ -9,6 +9,7 @@ from bgfactory.components.cairo_helpers import adjust_rect_size_by_line_width
 from bgfactory.components.component import Component
 from bgfactory.components.constants import FILL, INFER, COLOR_TRANSPARENT, COLOR_BLACK, \
     COLOR_WHITE, HALIGN_CENTER, VALIGN_MIDDLE
+from bgfactory.components.layout.layout_manager import LayoutError
 from bgfactory.components.layout.vertical_flow_layout import VerticalFlowLayout
 from bgfactory.components.shapes import Rectangle
 from bgfactory.components.text import TextUniform
@@ -233,7 +234,8 @@ class Grid(Component):
             if col_width == INFER:
                 w_max = 0
                 for i in range(nrows):
-                    if self.cells[i][j] is not None:
+                    cell = self.cells[i][j] 
+                    if cell is not None and cell._can_infer and cell._gridw == 1:
                         w_max = max(w_max, self.cells[i][j].get_size()[0])
                 cw = w_max
             elif is_percent(col_width):
@@ -272,7 +274,8 @@ class Grid(Component):
             if col_width == INFER:
                 h_max = 0
                 for j in range(ncols):
-                    if self.cells[i][j] is not None:
+                    cell = self.cells[i][j]
+                    if cell is not None and cell._can_infer and cell._gridh == 1:
                         h_max = max(h_max, self.cells[i][j].get_size()[1])
                 ch = h_max
             elif is_percent(col_width):
@@ -372,15 +375,23 @@ class GridCell(Rectangle):
     def __init__(self, w, h, gridw, gridh, layout, stroke_width, stroke_color, fill_color, padding):
         self._gridw = gridw
         self._gridh = gridh
+        self._can_infer = True
 
         super(GridCell, self).__init__(
             0, 0, w, h, layout=layout, stroke_width=stroke_width, stroke_color=stroke_color, fill_color=fill_color, padding=padding)
-
+        
+    def add(self, child):
+        
+        try:
+            self.layout.validate_child(child)
+        except LayoutError:
+            self._can_infer = False
+            
+        self.children.append(child)
 
 if __name__ == '__main__':
     
     rect = Rectangle(0, 0, 500, 500, stroke_width=0, fill_color=COLOR_WHITE)
-    
     
     grid = Grid(30, 30, 400, 400,
         ['5%', '30%', '10%', FILL],

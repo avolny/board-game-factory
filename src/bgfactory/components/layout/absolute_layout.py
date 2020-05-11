@@ -65,6 +65,11 @@ class AbsoluteLayout(LayoutManager):
             
             cw, ch = child.get_size()
             
+            if cw == FILL:
+                cw = '100%'
+            if ch == FILL:
+                ch = '100%'
+            
             if is_percent(cw):
                 cw = int(parse_percent(cw) * w)
             if is_percent(ch):

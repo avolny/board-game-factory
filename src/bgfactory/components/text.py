@@ -62,8 +62,6 @@ class _TextComponent(Component):
         if h == INFER:
             h = th + self.yoffset
         
-        print(f'get_size: {w}, {h}')
-        
         return w, h
     
     @abstractmethod
