@@ -11,7 +11,7 @@ from bgfactory.components.component import Component
 from bgfactory.components.constants import COLOR_BLACK, INFER, HALIGN_LEFT, VALIGN_TOP, \
     HALIGN_CENTER, HALIGN_RIGHT, VALIGN_MIDDLE, VALIGN_BOTTOM
 from bgfactory.components.shapes import Rectangle
-from bgfactory.components.pango_helpers import PANGO_SCALE, convert_to_pango_align
+from bgfactory.components.pango_helpers import PANGO_SCALE, convert_to_pango_align, convert_extents
 from bgfactory.common.profiler import profile
 
 
@@ -61,7 +61,9 @@ class _TextComponent(Component):
             w = tw
         if h == INFER:
             h = th + self.yoffset
-
+        
+        print(f'get_size: {w}, {h}')
+        
         return w, h
     
     @abstractmethod
@@ -84,12 +86,12 @@ class _TextComponent(Component):
         if (self.halign == HALIGN_CENTER):
             x = w / 2 - (wtext) / 2 - xoffset
         elif (self.halign == HALIGN_RIGHT):
-            x = w - wtext - xoffset - 1
+            x = w - wtext - xoffset
 
         if (self.valign == VALIGN_MIDDLE):
             y = h / 2 - htext / 2 + self.yoffset - yoffset
         if (self.valign == VALIGN_BOTTOM):
-            y = h - htext + self.yoffset - yoffset - 1
+            y = h - htext + self.yoffset - yoffset
             
         # print(self.halign, self.valign, x, y, xoffset, yoffset, wtext, htext)
             
@@ -283,7 +285,7 @@ class TextUniform(_TextComponent):
         pc_layout.get_iter()
         
         return ink.x / PANGO_SCALE - self.stroke_width, logical.y / PANGO_SCALE - self.stroke_width, \
-               logical.width / PANGO_SCALE + 2 * self.stroke_width, \
+               ink.width / PANGO_SCALE + 2 * self.stroke_width, \
                logical.height / PANGO_SCALE + 2 * self.stroke_width
     
 if __name__ == '__main__':

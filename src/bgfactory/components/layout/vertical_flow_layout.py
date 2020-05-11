@@ -1,3 +1,4 @@
+from math import floor
 from warnings import warn
 
 import cairocffi as cairo
@@ -14,7 +15,7 @@ from bgfactory.components.utils import is_percent, parse_percent
 class VerticalFlowLayout(LayoutManager):
     """
 
-    For w following applies:
+    For w, h following applies:
 
     If parent.w==INFER, child.w in [px]
     If parent.w!=INFER, child.w in [px, n%]
@@ -29,7 +30,7 @@ class VerticalFlowLayout(LayoutManager):
         self.halign = halign
         self.valign = valign
 
-    def _draw(self, surface :cairo.Surface, w, h):
+    def _draw(self, surface: cairo.Surface, w, h):
 
         cr = cairo.Context(surface)
 
@@ -105,10 +106,10 @@ class VerticalFlowLayout(LayoutManager):
             cy += max(prev_margin, child.margin[1])
             prev_margin = child.margin[3]
 
-            child_surface = child.draw(cw, ch)
+            child_surface = child.draw(floor(cw), floor(ch))
 
             profile('paint child surface')
-            cr.set_source_surface(child_surface, cx, cy)
+            cr.set_source_surface(child_surface, floor(cx), floor(cy))
             cr.paint()
             profile()
 
@@ -147,17 +148,20 @@ class VerticalFlowLayout(LayoutManager):
 
         y += max(0, prev_margin) + self.parent.padding[3]
 
-
         w = max_w or w or 0
         h = y or h or 0
 
         return w, h
 
     def validate_child(self, child):
-        if self.parent.w == INFER and is_percent(child.w):
-            raise LayoutError('width="n%" is not allowed when parent width=="infer"')
-        if self.parent.h == INFER and is_percent(child.h):
-            raise LayoutError('height="n%" is not allowed when parent height=="infer"')
+        if self.parent.w == INFER and child.w == FILL:
+            raise LayoutError('width="fill" is not allowed when parent width=="infer"')
+        if self.parent.h == INFER and child.h == FILL:
+            raise LayoutError('height="fill" is not allowed when parent height=="infer"')
+        if self.parent.w == INFER and (is_percent(child.w) or is_percent(child.x)):
+            raise LayoutError('width="n%" or x="n%" is not allowed when parent width=="infer"')
+        if self.parent.h == INFER and (is_percent(child.h) or is_percent(child.y)):
+            raise LayoutError('height="n%" or y="n%" is not allowed when parent height=="infer"')
         
         
 if __name__ == '__main__':

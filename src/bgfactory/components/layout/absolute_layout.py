@@ -47,10 +47,10 @@ class AbsoluteLayout(LayoutManager):
         return w, h
     
     def validate_child(self, child):
-        if child.w == FILL:
-            raise LayoutError('width="fill" is not allowed')
-        if child.h == FILL:
-            raise LayoutError('height="fill" is not allowed')
+        if self.parent.w == INFER and child.w == FILL:
+            raise LayoutError('width="fill" is not allowed when parent width=="infer"')
+        if self.parent.h == INFER and child.h == FILL:
+            raise LayoutError('height="fill" is not allowed when parent height=="infer"')
         if self.parent.w == INFER and (is_percent(child.w) or is_percent(child.x)):
             raise LayoutError('width="n%" or x="n%" is not allowed when parent width=="infer"')
         if self.parent.h == INFER and (is_percent(child.h) or is_percent(child.y)):

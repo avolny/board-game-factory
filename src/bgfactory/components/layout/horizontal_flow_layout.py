@@ -1,3 +1,4 @@
+from math import floor
 from warnings import warn
 
 import cairocffi as cairo
@@ -14,7 +15,7 @@ from bgfactory.components.utils import is_percent, parse_percent
 class HorizontalFlowLayout(LayoutManager):
     """
 
-    For w following applies:
+    For w,h following applies:
 
     If parent.w==INFER, child.w in [px]
     If parent.w!=INFER, child.w in [px, n%]
@@ -103,10 +104,10 @@ class HorizontalFlowLayout(LayoutManager):
             cx += max(prev_margin, child.margin[0])
             prev_margin = child.margin[2]
 
-            child_surface = child.draw(cw, ch)
+            child_surface = child.draw(floor(cw), floor(ch))
 
             profile('paint child surface')
-            cr.set_source_surface(child_surface, cx, cy)
+            cr.set_source_surface(child_surface, floor(cx), floor(cy))
             cr.paint()
             profile()
 
@@ -124,10 +125,10 @@ class HorizontalFlowLayout(LayoutManager):
         if (w is not None and h is not None):
             return (w, h)
 
-        max_w = 0
+        max_h = 0
         # infer required dimensions
         # x, y = self.padding[:2]
-        y = self.parent.padding[1]
+        x = self.parent.padding[0]
 
         prev_margin = 0
 
@@ -135,26 +136,30 @@ class HorizontalFlowLayout(LayoutManager):
             cw, ch = child.get_size()
 
             if self.parent.w == INFER:
-                max_w = max(
-                    max_w, cw + self.parent.padding[0] + self.parent.padding[2] + child.margin[0] + child.margin[2])
+                max_h = max(
+                    max_h, ch + self.parent.padding[1] + self.parent.padding[3] + child.margin[1] + child.margin[3])
 
             if self.parent.h == INFER:
-                y += ch + max(prev_margin, child.margin[1])
+                x += cw + max(prev_margin, child.margin[0])
 
-            prev_margin = child.margin[3]
+            prev_margin = child.margin[2]
 
-        y += max(0, prev_margin) + self.parent.padding[3]
+        x += max(0, prev_margin) + self.parent.padding[2]
 
-        w = max_w or w or 0
-        h = y or h or 0
+        w = x or w or 0
+        h = max_h or h or 0
 
         return w, h
 
     def validate_child(self, child):
-        if self.parent.w == INFER and is_percent(child.w):
-            raise LayoutError('width="n%" is not allowed when parent width=="infer"')
-        if self.parent.h == INFER and is_percent(child.h):
-            raise LayoutError('height="n%" is not allowed when parent height=="infer"')
+        if self.parent.w == INFER and child.w == FILL:
+            raise LayoutError('width="fill" is not allowed when parent width=="infer"')
+        if self.parent.h == INFER and child.h == FILL:
+            raise LayoutError('height="fill" is not allowed when parent height=="infer"')
+        if self.parent.w == INFER and (is_percent(child.w) or is_percent(child.x)):
+            raise LayoutError('width="n%" or x="n%" is not allowed when parent width=="infer"')
+        if self.parent.h == INFER and (is_percent(child.h) or is_percent(child.y)):
+            raise LayoutError('height="n%" or y="n%" is not allowed when parent height=="infer"')
 
 
 if __name__ == '__main__':

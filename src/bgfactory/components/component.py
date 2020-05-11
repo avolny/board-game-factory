@@ -27,7 +27,8 @@ class Component(ABC):
         return surface
     
     def image(self):
-        return image_from_surface(self.draw(self.w, self.h))
+        w, h = self.get_size()
+        return image_from_surface(self.draw(w, h))
     
     @abstractmethod
     def get_size(self):

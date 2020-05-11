@@ -14,3 +14,7 @@ def convert_to_pango_align(halign):
         return pango.Alignment.RIGHT
     else:
         raise ValueError('Horizontal alignment type {} not recognized'.format(halign))
+    
+    
+def convert_extents(ext):
+    return ext.x / PANGO_SCALE, ext.y / PANGO_SCALE, ext.width / PANGO_SCALE, ext.height / PANGO_SCALE
