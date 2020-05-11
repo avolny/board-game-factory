@@ -1,15 +1,9 @@
-from unittest import TestCase
-
-import cairocffi
-import pangocffi
-from PIL import Image
-
-from bgfactory.components.constants import HALIGN_LEFT, INFER, HALIGN_CENTER, HALIGN_RIGHT, VALIGN_TOP, VALIGN_MIDDLE, \
+from bgfactory.components.constants import HALIGN_LEFT, HALIGN_CENTER, HALIGN_RIGHT, VALIGN_TOP, VALIGN_MIDDLE, \
     VALIGN_BOTTOM
-from bgfactory.components.layout_manager import VerticalFlowLayout
+from bgfactory.components.layout.vertical_flow_layout import VerticalFlowLayout
 from bgfactory.components.shapes import Rectangle
-from bgfactory.components.text import TextUniform, FontDescription, TextMarkup
-from tests.utils import get_reference_img_path, assert_images_equal, ComponentRegressionTestCase
+from bgfactory.components.text import TextMarkup
+from tests.utils import ComponentRegressionTestCase
 
 
 class TestTextMarkup(ComponentRegressionTestCase):

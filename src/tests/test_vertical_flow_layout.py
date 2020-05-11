@@ -1,5 +1,5 @@
 from bgfactory.components.constants import HALIGN_LEFT, INFER, HALIGN_CENTER, HALIGN_RIGHT
-from bgfactory.components.layout_manager import VerticalFlowLayout
+from bgfactory.components.layout.vertical_flow_layout import VerticalFlowLayout
 from bgfactory.components.shapes import Rectangle
 from tests.utils import ComponentRegressionTestCase
 
