@@ -329,7 +329,7 @@ class Grid(Component):
                         ch += heights[i + k]
                         if k < cell._gridh - 1:
                             ch += self.vspace[i + k]
-
+                            
                     child_surface = cell.draw(cw, ch)
                     profile('paint child surface')
                     cr.set_source_surface(child_surface, cx, cy)
