@@ -27,11 +27,12 @@ class CardSheet(Rectangle):
         for i in range(nrows):
             for j in range(ncols):
                 index = i * ncols + j
-                card = cards[index]
-                
-                card.x = padx + j*cw
-                card.y = pady + i*ch
-                self.add(card)
+                if (index < len(cards)):
+                    card = cards[index]
+                    
+                    card.x = padx + j*cw
+                    card.y = pady + i*ch
+                    self.add(card)
         
     def get_size(self):
         return self.w, self.h

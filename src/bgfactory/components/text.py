@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from typing import Mapping
+from warnings import warn
 
 from xml.etree import ElementTree
 
@@ -50,12 +51,20 @@ class _TextComponent(Component):
         super(_TextComponent, self).__init__(x, y, w, h, margin)
 
     @abstractmethod
-    def _get_text_size(self):
+    def _get_text_size(self, w, h):
         pass
 
     def get_size(self):
         w, h = self.w, self.h
-        _, _, tw, th = self._get_text_size()
+        
+        fw, fh = None, None
+        if isinstance(w, (int, float)):
+            fw = w
+        if isinstance(h, (int, float)):
+            fw = h
+
+        # substitute in the dimensions that are known to infer the unknown ones
+        _, _, tw, th = self._get_text_size(fw, fh)
 
         if w == INFER:
             w = tw
@@ -65,14 +74,20 @@ class _TextComponent(Component):
         return w, h
     
     @abstractmethod
-    def _draw(self, surface, x, y):
+    def _draw(self, surface, x, y, w, h):
         pass
     
     def draw(self, w, h):
 
         surface = super(_TextComponent, self).draw(w, h)
 
-        xoffset, yoffset, wtext, htext = self._get_text_size()
+        xoffset, yoffset, wtext, htext = self._get_text_size(w, h)
+        
+        if htext > h:
+            warn('The text contents are higher than the display area, expect some text to be cut off. '
+                 'In general to avoid this, avoid using FILL or "n%" on width while using INFER on height of this element. '
+                 'When computing the height, the FILL or percentage width is not taken into account and any extra text '
+                 'will get cutoff')
 
         htext += self.yoffset
 
@@ -92,8 +107,8 @@ class _TextComponent(Component):
             y = h - htext + self.yoffset - yoffset
             
         # print(self.halign, self.valign, x, y, xoffset, yoffset, wtext, htext)
-            
-        self._draw(surface, x, y)
+        
+        self._draw(surface, x, y, w, h)
         
         return surface
 
@@ -107,7 +122,7 @@ class TextMarkup(_TextComponent):
     """
     dummy_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
 
-    def __init__(self, x, y, w, h, text, spacing=3, halign=HALIGN_LEFT,
+    def __init__(self, x, y, w, h, text, font_desc, spacing=3, halign=HALIGN_LEFT,
                  valign=VALIGN_TOP, yoffset=0, text_replace_map: Mapping[str, Component]=None, margin=(0, 0, 0, 0)):
         """
         Initialize Text component that uses pango markup 
@@ -137,23 +152,22 @@ class TextMarkup(_TextComponent):
         if text_replace_map is None:
             text_replace_map = dict()
         self.text_replace_map = text_replace_map
+        self.font_desc = font_desc
         
         super(TextMarkup, self).__init__(x, y, w, h, text, halign, valign, yoffset, margin)
         
-    def _draw(self, surface, x, y):
+    def _draw(self, surface, x, y, w, h):
         cr = cairo.Context(surface)
 
-        # print(x, y)
-
-        pc_layout = self._get_pc_layout(cr)
+        pc_layout = self._get_pc_layout(cr, w, h)
 
         profile('text.draw')
 
         cr.move_to(x, y)
         pc.update_layout(cr, pc_layout)
         pc.show_layout(cr, pc_layout)
-        # cr.fill()
-        self._draw_glyph_replacements(cr, pc_layout, x, y)
+        if self.text_replace_map:
+            self._draw_glyph_replacements(cr, pc_layout, x, y)
         
         profile()
         
@@ -196,17 +210,20 @@ class TextMarkup(_TextComponent):
             if not layout_iter.next_char():
                 break
 
-    def _get_pc_layout(self, cr):
+    def _get_pc_layout(self, cr, w, h):
         pc_layout = pc.create_layout(cr)
+        if w is not None:
+            pc_layout.set_width(w * PANGO_SCALE)
+        pc_layout.set_font_description(self.font_desc._desc)
         pc_layout.set_markup(self.text)
         pc_layout.set_spacing(self.spacing)
         pc_layout.set_alignment(convert_to_pango_align(self.halign))
 
         return pc_layout
 
-    def _get_text_size(self):
+    def _get_text_size(self, w, h):
         cr = cairo.Context(TextUniform.dummy_surface)
-        pc_layout = self._get_pc_layout(cr)
+        pc_layout = self._get_pc_layout(cr, w, h)
 
         ink, logical = pc_layout.get_extents()
 
@@ -239,11 +256,11 @@ class TextUniform(_TextComponent):
         
         super(TextUniform, self).__init__(x, y, w, h, text, halign, valign, yoffset, margin)
         
-    def _draw(self, surface, x, y):
+    def _draw(self, surface, x, y, w, h):
         
         cr = cairo.Context(surface)
-
-        pc_layout = self._get_pc_layout(cr)
+        
+        pc_layout = self._get_pc_layout(cr, w, h)
         
         profile('text.draw')
         if(self.stroke_color is not None):
@@ -265,8 +282,10 @@ class TextUniform(_TextComponent):
         cr.restore()
         profile()
         
-    def _get_pc_layout(self, cr):
+    def _get_pc_layout(self, cr, w, h):
         pc_layout = pc.create_layout(cr)
+        if w is not None:
+            pc_layout.set_width(int(w) * PANGO_SCALE)
         desc = self.font_description.get_pango_font_description()
         pc_layout.set_font_description(desc)
         pc_layout.set_text(self.text)
@@ -275,9 +294,9 @@ class TextUniform(_TextComponent):
         
         return pc_layout
         
-    def _get_text_size(self):
+    def _get_text_size(self, w, h):
         cr = cairo.Context(TextUniform.dummy_surface)
-        pc_layout = self._get_pc_layout(cr)
+        pc_layout = self._get_pc_layout(cr, w, h)
 
         ink, logical = pc_layout.get_extents()
         pc_layout.get_iter()
