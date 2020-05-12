@@ -172,13 +172,20 @@ class TextMarkup(_TextComponent):
         profile()
         
     def _draw_glyph_replacements(self, cr, pc_layout, base_x, base_y):
+        # This method might not work on languages that do not flow from left to right 
+        
         layout_iter = pc_layout.get_iter()
         
         text = self._xml_to_plaintext(self.text)
         
+        if not text:
+            return
+        
+        char_index = 0
+        
         while True:
             
-            char = text[layout_iter.get_index()]
+            char = text[char_index]
             ext = layout_iter.get_char_extents()
             y_baseline = base_y + layout_iter.get_baseline() / PANGO_SCALE
             x, y, w, h = base_x + ext.x / PANGO_SCALE, base_y + ext.y / PANGO_SCALE, ext.width / PANGO_SCALE, ext.height / PANGO_SCALE
@@ -206,6 +213,8 @@ class TextMarkup(_TextComponent):
                 
                 cr.set_source_surface(surface, x_glyph, y_glyph)
                 cr.paint()
+            
+            char_index += 1
             
             if not layout_iter.next_char():
                 break
