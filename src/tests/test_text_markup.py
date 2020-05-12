@@ -2,7 +2,7 @@ from bgfactory.components.constants import HALIGN_LEFT, HALIGN_CENTER, HALIGN_RI
     VALIGN_BOTTOM
 from bgfactory.components.layout.vertical_flow_layout import VerticalFlowLayout
 from bgfactory.components.shapes import Rectangle
-from bgfactory.components.text import TextMarkup
+from bgfactory.components.text import TextMarkup, FontDescription
 from tests.utils import ComponentRegressionTestCase
 
 
@@ -29,7 +29,7 @@ class TestTextMarkup(ComponentRegressionTestCase):
         
         text = TextMarkup(
             0, 0, textw, texth, TestTextMarkup.TEXT[textid], halign=halign, valign=valign, 
-            text_replace_map=TestTextMarkup.REPLACEMENT[textid])
+            text_replace_map=TestTextMarkup.REPLACEMENT[textid], font_desc=FontDescription())
 
         card.add(text)
 
