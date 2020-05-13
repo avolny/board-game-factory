@@ -1,6 +1,6 @@
 from bgfactory.components.constants import HALIGN_LEFT, INFER, HALIGN_CENTER, HALIGN_RIGHT
 from bgfactory.components.layout.vertical_flow_layout import VerticalFlowLayout
-from bgfactory.components.shapes import Rectangle
+from bgfactory.components.shape import Rectangle
 from tests.utils import ComponentRegressionTestCase
 
 
@@ -10,11 +10,11 @@ class TestVerticalFlowLayout(ComponentRegressionTestCase):
     def generate_component(halign, boxw, boxh):
         
         card = Rectangle(
-            0, 0, 200, 200, stroke_width=5, stroke_color=(1, 0, 0, 1),
-            fill_color=(0, 1, 0, 1), padding=(20, 30, 40, 50), layout=VerticalFlowLayout(halign))
+            0, 0, 200, 200, stroke_width=5, stroke_src=(1, 0, 0, 1),
+            fill_src=(0, 1, 0, 1), padding=(20, 30, 40, 50), layout=VerticalFlowLayout(halign))
         
         box = Rectangle(
-            0, 0, boxw, boxh, stroke_width=2, stroke_color=(0, 0, 0, 1), fill_color=(1, 0, 0, 0.5),  
+            0, 0, boxw, boxh, stroke_width=2, stroke_src=(0, 0, 0, 1), fill_src=(1, 0, 0, 0.5),  
             margin=(5, 10, 15, 20)
         )
         

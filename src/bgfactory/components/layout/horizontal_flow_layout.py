@@ -8,7 +8,7 @@ from bgfactory.components.component import Container
 from bgfactory.components.constants import HALIGN_LEFT, HALIGN_CENTER, HALIGN_RIGHT, INFER, FILL, VALIGN_TOP, \
     VALIGN_MIDDLE, VALIGN_BOTTOM
 from bgfactory.components.layout.layout_manager import LayoutManager, LayoutError
-from bgfactory.components.shapes import Rectangle
+from bgfactory.components.shape import Rectangle
 from bgfactory.components.utils import is_percent, parse_percent
 
 

@@ -2,7 +2,7 @@ from bgfactory.components.constants import INFER, HALIGN_CENTER, VALIGN_MIDDLE, 
     FILL
 from bgfactory.components.grid import Grid
 from bgfactory.components.layout.vertical_flow_layout import VerticalFlowLayout
-from bgfactory.components.shapes import Rectangle
+from bgfactory.components.shape import Rectangle
 from tests.utils import ComponentRegressionTestCase
 
 
@@ -63,8 +63,8 @@ class TestGrid(ComponentRegressionTestCase):
     def kwargs2(i, j):
         return dict(
             stroke_width=i,
-            stroke_color=(i * 0.1, j * 0.1, 0.5, 1),
-            fill_color=(0.5, j * 0.1, i * 0.1, 0.7),
+            stroke_src=(i * 0.1, j * 0.1, 0.5, 1),
+            fill_src=(0.5, j * 0.1, i * 0.1, 0.7),
             padding=(i, j, i, j),
             layout=VerticalFlowLayout(HALIGN_CENTER, VALIGN_MIDDLE)
         )
@@ -96,7 +96,7 @@ class TestGrid(ComponentRegressionTestCase):
             TestGrid.kwargs2
         ]
 
-        rect = Rectangle(0, 0, 500, 500, stroke_width=0, fill_color=(1, 1, 1, 0.8))
+        rect = Rectangle(0, 0, 500, 500, stroke_width=0, fill_src=(1, 1, 1, 0.8))
 
         cols = TestGrid.COLS[colsid]
         rows = TestGrid.ROWS[colsid]
@@ -104,7 +104,7 @@ class TestGrid(ComponentRegressionTestCase):
         grid = Grid(
             50, 50, w, h, cols, rows, TestGrid.HSPACE[hspaceid],
             TestGrid.VSPACE[vspaceid], stroke_width=stroke_width, padding=TestGrid.PADDING[paddingid],
-            stroke_color=(0, 0.3, 0.6, 1), fill_color=(0.8, 0.5, 0.0, 0.8),
+            stroke_src=(0, 0.3, 0.6, 1), fill_src=(0.8, 0.5, 0.0, 0.8),
             cell_kwargs_generator=CELL_KWARGS_GENERATOR[kwargs_gen_id]
         )
         rect.add(grid)
@@ -118,8 +118,8 @@ class TestGrid(ComponentRegressionTestCase):
 
         for i in range(len(rows)):
             for j in range(len(cols)):
-                content = Rectangle(3, 3, 15 + i*2, 15 + j*2, stroke_width=1, stroke_color=(0.9, 0.6, 0.3, 1),
-                                    fill_color=(0.3, 0.3, 0.6, 0.7))
+                content = Rectangle(3, 3, 15 + i*2, 15 + j*2, stroke_width=1, stroke_src=(0.9, 0.6, 0.3, 1),
+                                    fill_src=(0.3, 0.3, 0.6, 0.7))
                 if grid.cells[i][j]:
                     grid.add(content, i, j)
                     

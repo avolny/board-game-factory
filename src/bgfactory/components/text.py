@@ -11,9 +11,10 @@ import pangocairocffi as pc
 from bgfactory.components.component import Component
 from bgfactory.components.constants import COLOR_BLACK, INFER, HALIGN_LEFT, VALIGN_TOP, \
     HALIGN_CENTER, HALIGN_RIGHT, VALIGN_MIDDLE, VALIGN_BOTTOM
-from bgfactory.components.shapes import Rectangle
+from bgfactory.components.shape import Rectangle
 from bgfactory.components.pango_helpers import PANGO_SCALE, convert_to_pango_align, convert_extents
 from bgfactory.common.profiler import profile
+from bgfactory.components.source import convert_source
 
 
 class FontDescription():
@@ -174,6 +175,25 @@ class TextMarkup(_TextComponent):
     def _draw_glyph_replacements(self, cr, pc_layout, base_x, base_y):
         # This method might not work on languages that do not flow from left to right 
         
+        """
+        Order of enumeration
+
+        The iterator works with text which was already reordered by lower level funcs into "visual order". 
+        Lines are divided into runs, which are divided into clusters. Each cluster is composed of a sequence of glyphs, 
+        and corresponds to a specific sub-sequence of the original text string (in many cases, each glyph corresponds 
+        to a single character, but this is not always the case). You should note that the basic unit of reordering is
+        the cluster - not character or glyph. A cluster is composed of a 'base-character', and zero or more 
+        'combining marks' (in Hebrew and Arabic these are usually 'points'). The points are rendered 
+        above/below/inside the base character, so they all have the same logical extents, 
+        and no natural "visual" ordering.
+         
+        :param cr: 
+        :param pc_layout: 
+        :param base_x: 
+        :param base_y: 
+        :return: 
+        """
+        
         layout_iter = pc_layout.get_iter()
         
         text = self._xml_to_plaintext(self.text)
@@ -253,13 +273,13 @@ class TextUniform(_TextComponent):
     dummy_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
     
     def __init__(self, x, y, w, h, text, font_description=FontDescription(), spacing=3, halign=HALIGN_LEFT,
-                 valign=VALIGN_TOP, color=COLOR_BLACK, stroke_width=0, stroke_color=None,
+                 valign=VALIGN_TOP, fill_src=COLOR_BLACK, stroke_width=0, stroke_src=None,
                  outline_line_join=cairo.LINE_JOIN_MITER, yoffset=0, margin=(0,0,0,0)):
         
         self.font_description = font_description
-        self.color = color
+        self.fill_src = convert_source(fill_src)
         self.stroke_width = stroke_width
-        self.stroke_color = stroke_color
+        self.stroke_src = convert_source(stroke_src)
         self.spacing = spacing * PANGO_SCALE
         self.outline_line_join = outline_line_join
         
@@ -272,10 +292,10 @@ class TextUniform(_TextComponent):
         pc_layout = self._get_pc_layout(cr, w, h)
         
         profile('text.draw')
-        if(self.stroke_color is not None):
+        if(self.stroke_src is not None):
             cr.move_to(x, y)
             cr.set_line_width(self.stroke_width * 2)
-            cr.set_source_rgba(*self.stroke_color)
+            self.stroke_src.set(cr, 0, 0, w, h)
             cr.set_line_join(self.outline_line_join)
             pc.update_layout(cr, pc_layout)
             pc.layout_path(cr, pc_layout)
@@ -283,7 +303,7 @@ class TextUniform(_TextComponent):
         
         cr.save()
         cr.move_to(x, y)
-        cr.set_source_rgba(*self.color)
+        self.fill_src.set(cr, 0, 0, w, h)
         cr.set_operator(cairo.OPERATOR_SOURCE)
         pc.update_layout(cr, pc_layout)
         pc.layout_path(cr, pc_layout)
@@ -320,7 +340,7 @@ if __name__ == '__main__':
     
     text = TextUniform(
         10, 10, '100%', '100%', "testing text", font_description=FontDescription(size=40),
-        halign=HALIGN_CENTER, valign=VALIGN_MIDDLE, stroke_width=5, stroke_color=(1, 0, 0, 1), color=(0, 1, 0, 1),
+        halign=HALIGN_CENTER, valign=VALIGN_MIDDLE, stroke_width=5, stroke_src=(1, 0, 0, 1), fill_src=(0, 1, 0, 1),
         outline_line_join=cairo.LINE_JOIN_ROUND
     )
     

@@ -1,12 +1,12 @@
 from bgfactory.components.constants import COLOR_WHITE
-from bgfactory.components.shapes import Rectangle
+from bgfactory.components.shape import Rectangle
 
 
 class CardSheet(Rectangle):
     
     def __init__(self, w, h, cards):
 
-        super(CardSheet, self).__init__(0, 0, w, h, 0, fill_color=COLOR_WHITE)
+        super(CardSheet, self).__init__(0, 0, w, h, 0, fill_src=COLOR_WHITE)
         
         card0 = cards[0]
         for card in cards:

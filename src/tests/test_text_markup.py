@@ -1,7 +1,7 @@
 from bgfactory.components.constants import HALIGN_LEFT, HALIGN_CENTER, HALIGN_RIGHT, VALIGN_TOP, VALIGN_MIDDLE, \
     VALIGN_BOTTOM
 from bgfactory.components.layout.vertical_flow_layout import VerticalFlowLayout
-from bgfactory.components.shapes import Rectangle
+from bgfactory.components.shape import Rectangle
 from bgfactory.components.text import TextMarkup, FontDescription
 from tests.utils import ComponentRegressionTestCase
 
@@ -16,16 +16,16 @@ class TestTextMarkup(ComponentRegressionTestCase):
     
     REPLACEMENT = [
         {},
-        {'e': Rectangle(0, 0, 15, 25, fill_color=(1, 0, 0, 0.5)),
-         'i': Rectangle(0, 0, 13, 25, fill_color=(0, 1, 0, 0.5)),
-         '&': Rectangle(0, 0, 11, 25, fill_color=(0, 0, 1, 0.5))}
+        {'e': Rectangle(0, 0, 15, 25, fill_src=(1, 0, 0, 0.5)),
+         'i': Rectangle(0, 0, 13, 25, fill_src=(0, 1, 0, 0.5)),
+         '&': Rectangle(0, 0, 11, 25, fill_src=(0, 0, 1, 0.5))}
     ]
 
     @staticmethod
     def generate_component(halign, valign, textw, texth, textid):
         card = Rectangle(
-            0, 0, 200, 200, stroke_width=5, stroke_color=(1, 0, 0, 1),
-            fill_color=(0, 1, 0, 0.5), layout=VerticalFlowLayout(halign))
+            0, 0, 200, 200, stroke_width=5, stroke_src=(1, 0, 0, 1),
+            fill_src=(0, 1, 0, 0.5), layout=VerticalFlowLayout(halign))
         
         text = TextMarkup(
             0, 0, textw, texth, TestTextMarkup.TEXT[textid], halign=halign, valign=valign, 

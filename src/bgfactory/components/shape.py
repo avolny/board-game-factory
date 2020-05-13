@@ -6,20 +6,21 @@ import cairocffi as cairo
 from bgfactory.components.cairo_helpers import adjust_rect_size_by_line_width
 from bgfactory.components.component import Container
 from bgfactory.components.constants import COLOR_BLACK, COLOR_WHITE
+from bgfactory.components.source import convert_source
 
 
 class Shape(Container):
     
-    def __init__(self, x, y, w, h, stroke_width=3, stroke_color=COLOR_BLACK,
-                 fill_color=COLOR_WHITE, layout=None, margin=(0,0,0,0), padding=(0,0,0,0)):
+    def __init__(self, x, y, w, h, stroke_width=3, stroke_src=COLOR_BLACK,
+                 fill_src=COLOR_WHITE, layout=None, margin=(0, 0, 0, 0), padding=(0, 0, 0, 0)):
         self.stroke_width = stroke_width
-        self.stroke_color = stroke_color
-        self.fill_color = fill_color
+        self.stroke_src = convert_source(stroke_src)
+        self.fill_src = convert_source(fill_src)
         
-        if self.stroke_color[3] < 1:
-            warn('The stroke overlaps the fill area, with transparent stroke, you will see the fill through '
-                 'half of the border. If you absolutely need transparent border, create a custom component '
-                 'that renders them with different paths and check yourself for the desired result.')
+        # if self.stroke_src[3] < 1:
+        #     warn('The stroke overlaps the fill area, with transparent stroke, you will see the fill through '
+        #          'half of the border. If you absolutely need transparent border, create a custom component '
+        #          'that renders them with different paths and check yourself for the desired result.')
         
         super(Shape, self).__init__(x, y, w, h, margin, [e + stroke_width for e in padding], layout)
     
@@ -34,20 +35,20 @@ class Rectangle(Shape):
         cr.rectangle(x, y, w, h)
         
         cr.set_line_width(self.stroke_width)
-        cr.set_source_rgba(*self.fill_color)
+        self.fill_src.set(cr, 0, 0, w, h)
         cr.fill_preserve()
-        cr.set_source_rgba(*self.stroke_color)
+        self.stroke_src.set(cr, 0, 0, w, h)
         cr.stroke()
 
 
 class RoundedRectangle(Shape):
 
     def __init__(
-            self, x, y, w, h, radius=10, stroke_width=3, stroke_color=COLOR_BLACK, 
-            fill_color=COLOR_WHITE, layout=None, margin=(0,0,0,0), padding=(0,0,0,0)):
+            self, x, y, w, h, radius=10, stroke_width=3, stroke_src=COLOR_BLACK, 
+            fill_src=COLOR_WHITE, layout=None, margin=(0, 0, 0, 0), padding=(0, 0, 0, 0)):
         self.radius = radius
 
-        super(RoundedRectangle, self).__init__(x, y, w, h, stroke_width, stroke_color, fill_color, layout, margin, padding)
+        super(RoundedRectangle, self).__init__(x, y, w, h, stroke_width, stroke_src, fill_src, layout, margin, padding)
 
     def _draw(self, surface: cairo.Surface, w, h):
         
@@ -62,7 +63,7 @@ class RoundedRectangle(Shape):
         cr.close_path()
         
         cr.set_line_width(self.stroke_width)
-        cr.set_source_rgba(*self.fill_color)
+        self.fill_src.set(cr, 0, 0, w, h)
         cr.fill_preserve()
-        cr.set_source_rgba(*self.stroke_color)
+        self.stroke_src.set(cr, 0, 0, w, h)
         cr.stroke()

@@ -11,7 +11,8 @@ from bgfactory.components.constants import FILL, INFER, COLOR_TRANSPARENT, COLOR
     COLOR_WHITE, HALIGN_CENTER, VALIGN_MIDDLE
 from bgfactory.components.layout.layout_manager import LayoutError
 from bgfactory.components.layout.vertical_flow_layout import VerticalFlowLayout
-from bgfactory.components.shapes import Rectangle
+from bgfactory.components.shape import Rectangle
+from bgfactory.components.source import convert_source
 from bgfactory.components.text import TextUniform
 from bgfactory.components.utils import is_percent, parse_percent
 
@@ -28,7 +29,7 @@ class Grid(Component):
 
     def __init__(
             self, x, y, w, h, cols, rows, hspace=0, vspace=0, cell_kwargs_generator=None, stroke_width=0,
-            stroke_color=COLOR_BLACK, fill_color=COLOR_TRANSPARENT, margin=(0, 0, 0, 0), padding=(0, 0, 0, 0)):
+            stroke_src=COLOR_BLACK, fill_src=COLOR_TRANSPARENT, margin=(0, 0, 0, 0), padding=(0, 0, 0, 0)):
         """
         Initialize Grid component. It allows for very complex layouts, it is akin to LayoutManager but there
         are good reasons why it's a Component.
@@ -50,15 +51,15 @@ class Grid(Component):
         since each cell draws its own border. If you need a border of exactly 1 px, set stroke_width=0,
         using cell_kwargs_generator set stroke_width=1 for all the cells and then set hspace=-1, vspace=-1. This
         will result in 1-pixel border grid. You can use the same procedure to generate any odd-pixel border
-        :param stroke_color: color of the border
-        :param fill_color: fill color of the grid
+        :param stroke_src: source of the border (color tuple or Source)
+        :param fill_src: fill color of the grid
         :param margin: margin (4-tuple - left, top, right, bot)
         :param padding: padding (4-tuple - left, top, right, bot)
         """
 
         self.stroke_width = stroke_width
-        self.stroke_color = stroke_color
-        self.fill_color = fill_color
+        self.stroke_src = convert_source(stroke_src)
+        self.fill_src = convert_source(fill_src)
         self.padding = [e + stroke_width for e in padding]
 
         self.rows = rows
@@ -122,8 +123,8 @@ class Grid(Component):
             for j in range(ncols):
                 kwargs = dict(
                     stroke_width=stroke_width,
-                    stroke_color=stroke_color,
-                    fill_color=fill_color,
+                    stroke_src=stroke_src,
+                    fill_src=fill_src,
                     padding=(0, 0, 0, 0),
                     layout=None)
                 kwargs.update(cell_kwargs_generator(i, j))
@@ -208,9 +209,9 @@ class Grid(Component):
         cr.rectangle(x, y, w, h)
 
         cr.set_line_width(self.stroke_width)
-        cr.set_source_rgba(*self.fill_color)
+        self.fill_src.set(cr, 0, 0, w, h)
         cr.fill_preserve()
-        cr.set_source_rgba(*self.stroke_color)
+        self.stroke_src.set(cr, 0, 0, w, h)
         cr.stroke()
         
     def _get_col_widths(self, w):
@@ -372,13 +373,13 @@ class Grid(Component):
 
 class GridCell(Rectangle):
 
-    def __init__(self, w, h, gridw, gridh, layout, stroke_width, stroke_color, fill_color, padding):
+    def __init__(self, w, h, gridw, gridh, layout, stroke_width, stroke_src, fill_src, padding):
         self._gridw = gridw
         self._gridh = gridh
         self._can_infer = True
 
         super(GridCell, self).__init__(
-            0, 0, w, h, layout=layout, stroke_width=stroke_width, stroke_color=stroke_color, fill_color=fill_color, padding=padding)
+            0, 0, w, h, layout=layout, stroke_width=stroke_width, stroke_src=stroke_src, fill_src=fill_src, padding=padding)
         
     def add(self, child):
         

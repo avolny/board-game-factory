@@ -4,7 +4,7 @@ import pangocffi
 from bgfactory.components.constants import HALIGN_LEFT, INFER, HALIGN_CENTER, HALIGN_RIGHT, VALIGN_TOP, VALIGN_MIDDLE, \
     VALIGN_BOTTOM
 from bgfactory.components.layout.vertical_flow_layout import VerticalFlowLayout
-from bgfactory.components.shapes import Rectangle
+from bgfactory.components.shape import Rectangle
 from bgfactory.components.text import TextUniform, FontDescription
 from tests.utils import ComponentRegressionTestCase
 
@@ -15,15 +15,15 @@ class TestTextUniform(ComponentRegressionTestCase):
     @staticmethod
     def generate_component(halign, valign, textw, texth, textid):
         card = Rectangle(
-            0, 0, 200, 200, stroke_width=5, stroke_color=(1, 0, 0, 1),
-            fill_color=(0, 1, 0, 0.9), layout=VerticalFlowLayout(halign))
+            0, 0, 200, 200, stroke_width=5, stroke_src=(1, 0, 0, 1),
+            fill_src=(0, 1, 0, 0.9), layout=VerticalFlowLayout(halign))
         
         font_desc = FontDescription(
             "Arial", 24, pangocffi.Weight.BOLD, pangocffi.Style.OBLIQUE)
         
         text = TextUniform(
             0, 0, textw, texth, TestTextUniform.TEXT[textid], font_desc, halign=halign, valign=valign,
-            stroke_width=3, color=(0.3, 0.7, 0.3, 0.5), stroke_color=(0.7, 0.3, 0.7, 0.9), 
+            stroke_width=3, fill_src=(0.3, 0.7, 0.3, 0.5), stroke_src=(0.7, 0.3, 0.7, 0.9), 
             outline_line_join=cairocffi.LINE_JOIN_ROUND
         )
 
