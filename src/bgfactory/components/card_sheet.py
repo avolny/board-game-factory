@@ -15,14 +15,18 @@ class CardSheet(Rectangle):
         
         cw, ch = card0.w, card0.h
         
-        MIN_PADDING_X = 0.005 * w
-        MIN_PADDING_Y = 0.005 * h
+        MIN_PADDING_X = 0.035 * w
+        MIN_PADDING_Y = 0.02 * h
         
         ncols = int((w - MIN_PADDING_X * 2) // cw)
         nrows = int((h - MIN_PADDING_Y * 2) // ch)
         
         padx = (w - ncols * cw) // 2
         pady = (h - nrows * ch) // 2
+        
+        # print(padx, pady)
+        # print(h, ch)
+        # print(nrows)
         
         for i in range(nrows):
             for j in range(ncols):

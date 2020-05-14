@@ -107,7 +107,7 @@ class Grid(Component):
 
         if hspace is None:
             hspace = 0
-        if isinstance(vspace, (int, float)):
+        if isinstance(hspace, (int, float)):
             self.hspace = [hspace] * (ncols - 1)
         elif isinstance(hspace, Iterable):
             self.hspace = list(hspace)
