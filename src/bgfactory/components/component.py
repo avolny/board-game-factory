@@ -8,6 +8,8 @@ from bgfactory.components.constants import FILL
 from bgfactory.components.layout.absolute_layout import AbsoluteLayout
 from bgfactory.common.profiler import profile
 
+# DEBUG = True
+DEBUG = False
 
 class Component(ABC):
     
@@ -23,6 +25,12 @@ class Component(ABC):
         profile('cairo.ImageSurface')
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, int(ceil(w)), int(ceil(h)))
         profile()
+        if DEBUG:
+            cr = cairo.Context(surface)
+            cr.rectangle(0, 0, int(ceil(w)), int(ceil(h)))
+            cr.set_source_rgba(0.7, 0.3, 0.2, 0.5)
+            cr.set_line_width(3)
+            cr.stroke()
         
         return surface
     

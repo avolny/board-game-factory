@@ -10,11 +10,15 @@ import pangocairocffi as pc
 
 from bgfactory.components.component import Component
 from bgfactory.components.constants import COLOR_BLACK, INFER, HALIGN_LEFT, VALIGN_TOP, \
-    HALIGN_CENTER, HALIGN_RIGHT, VALIGN_MIDDLE, VALIGN_BOTTOM
+    HALIGN_CENTER, HALIGN_RIGHT, VALIGN_MIDDLE, VALIGN_BOTTOM, FILL
 from bgfactory.components.shape import Rectangle
 from bgfactory.components.pango_helpers import PANGO_SCALE, convert_to_pango_align, convert_extents
 from bgfactory.common.profiler import profile
 from bgfactory.components.source import convert_source
+from bgfactory.components.utils import is_percent, parse_percent
+
+
+SHOW_ME_DIMENSIONS = 'show_me_dimensions'
 
 
 class FontDescription():
@@ -84,6 +88,9 @@ class _TextComponent(Component):
 
         xoffset, yoffset, wtext, htext = self._get_text_size(w, h)
         
+        # print(self.text)
+        # print(self._get_text_size(w, h))
+        
         if htext > h:
             warn('The text contents are higher than the display area, expect some text to be cut off. '
                  'In general to avoid this, avoid using FILL or "n%" on width while using INFER on height of this element. '
@@ -144,7 +151,9 @@ class TextMarkup(_TextComponent):
         :param text_replace_map: dictionary that maps characters onto Components. The component is placed
          vertically on the baseline and horizontally to the middle of the replaced glyph extents. 
          The component.x and component.y values are used as additional offset, this allows for fine-tuned adjustments.
-         Note that you have to match the components to the font size yourself.
+         To figure out the dimensions of the removed text, use 'your_key': SHOW_ME_DIMENSIONS entries and the draw
+         method will produce both console output with the dimensions and visual guides. Note that the glyphs are not
+         constrained by these dimensions but those are used as reference for FILL and n% of the glyphs. 
 
         :param margin: 
         """
@@ -163,6 +172,8 @@ class TextMarkup(_TextComponent):
         pc_layout = self._get_pc_layout(cr, w, h)
 
         profile('text.draw')
+        
+        # print('draw ', x, y, w, h)
 
         cr.move_to(x, y)
         pc.update_layout(cr, pc_layout)
@@ -198,41 +209,116 @@ class TextMarkup(_TextComponent):
         
         text = self._xml_to_plaintext(self.text)
         
+        replacements = [None] * len(text)
+        replacement_keys = [None] * len(text)
+        replacement_lengths = [0] * len(text)
+        
+        CONTINUE = 'continue'
+        END = 'end'
+        
+        for key in self.text_replace_map:
+            split = text.split(key)
+            
+            index = len(split[0])
+            
+            for part in split[1:]:
+                replacements[index] = self.text_replace_map[key]
+                replacement_keys[index] = key
+                replacement_lengths[index] = len(key)
+                index += len(part) + len(key)
+        
         if not text:
             return
         
         char_index = 0
         
+        replacement_width = None
+        replacement_height = None
+        replacement_finish = None
+        replacement_x = None
+        replacement_y = None
+        
         while True:
             
-            char = text[char_index]
+            # char = text[char_index]
             ext = layout_iter.get_char_extents()
             y_baseline = base_y + layout_iter.get_baseline() / PANGO_SCALE
             x, y, w, h = base_x + ext.x / PANGO_SCALE, base_y + ext.y / PANGO_SCALE, ext.width / PANGO_SCALE, ext.height / PANGO_SCALE
+            ink, log = layout_iter.get_cluster_extents()
+
+            # print(text[char_index], convert_extents(ext))
+            # print(text[char_index], convert_extents(ink), convert_extents(log))
             
-            if char in self.text_replace_map:
+            # print(convert_extents(ext2))
+            
+            if replacements[char_index]:
                 # print(layout_iter.get_index())
                 # print(x, y, w, h)
                 
-                glyph = self.text_replace_map[char]
+                replacement_glyph = replacements[char_index]
+                replacement_key = replacement_keys[char_index]
+                replacement_finish = char_index + replacement_lengths[char_index] - 1
+                
+                # print(replacement_glyph)
+                # print(replacement_finish)
+                
+                replacement_x = x
+                replacement_y = y
+                replacement_width = w
+                replacement_height = h
+            elif replacement_finish is not None:
+                replacement_width += w
+                replacement_height = max(replacement_height, h)
+            
+            if char_index == replacement_finish:
                 
                 cr.save()
                 # clear out the glyph area
-                cr.move_to(x, y)
-                cr.rectangle(x, y, w, h)
+                cr.move_to(replacement_x, replacement_y)
+                cr.rectangle(replacement_x, replacement_y, replacement_width, replacement_height)
                 cr.set_operator(cairo.OPERATOR_CLEAR)
                 cr.fill()
                 cr.restore()
-
-                surface = glyph.draw(glyph.w, glyph.h)
+                
+                # it makes more sense to adjust the height to the baseline
+                replacement_height = y_baseline - replacement_y
+                
+                if replacement_glyph == SHOW_ME_DIMENSIONS:
+                    print('show me dimensions for: {}'.format(replacement_key))
+                    print('removed glyphs: x {}, y {}, w {}, h {}, y_baseline {}'.format(
+                        replacement_x, replacement_y, replacement_width, replacement_height, y_baseline))
+                    replacement_glyph = Rectangle(0, 0, FILL, FILL, stroke_width=3, stroke_src=(0.8, 0.3, 0.1, 0.5),
+                                                   fill_src=(0.3, 0.5, 0.5, 0.5))
+                
+                w, h = replacement_glyph.get_size()
+                if w == FILL:
+                    w = '100%'
+                if is_percent(w):
+                    w = replacement_width * parse_percent(w)
+                if h == FILL:
+                    h = '100%'
+                if is_percent(h):
+                    h = replacement_height * parse_percent(h)
+                
+                # print(replacement_width, replacement_height, w, h)
+                
+                surface = replacement_glyph.draw(w, h)
                 
                 # place the glyph on the line baseline to the middle of the removed glyph,
                 # the glyph x,y coordinates are used as an offset
-                x_glyph = x + w / 2 - glyph.w / 2 + glyph.x
-                y_glyph = y_baseline - glyph.h + glyph.y
+                x_glyph = replacement_x + replacement_width / 2 - w / 2 + replacement_glyph.x
+                
+                y_glyph = y_baseline - h + replacement_glyph.y
+                
+                # print(y_baseline)
+                # print(h)
+                # print(y_glyph)
                 
                 cr.set_source_surface(surface, x_glyph, y_glyph)
                 cr.paint()
+                
+                replacement_glyph = None
+                replacement_finish = None
             
             char_index += 1
             

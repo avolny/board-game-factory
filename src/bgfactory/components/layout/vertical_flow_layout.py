@@ -130,7 +130,7 @@ class VerticalFlowLayout(LayoutManager):
         max_w = 0
         # infer required dimensions
         # x, y = self.padding[:2]
-        y = self.parent.padding[1]
+        y = 0
 
         prev_margin = 0
 
@@ -146,8 +146,9 @@ class VerticalFlowLayout(LayoutManager):
 
             prev_margin = child.margin[3]
 
-        y += max(0, prev_margin) + self.parent.padding[3]
-
+        if self.parent.h == INFER:
+            y += max(0, prev_margin) + self.parent.padding[3] + self.parent.padding[1]
+        
         w = max_w or w or 0
         h = y or h or 0
 
