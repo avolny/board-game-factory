@@ -73,9 +73,6 @@ class HorizontalFlowLayout(LayoutManager):
             children_dimensions.append((cw, ch))
 
         if w_content > w_padded - w_margins:
-            print(w_content)
-            print(w_padded)
-            print(w_margins)
             warn('Children overflow the width of the layout')
 
         y = self.parent.padding[1]
@@ -133,7 +130,6 @@ class HorizontalFlowLayout(LayoutManager):
 
         for i, child in enumerate(self.parent.children):
             cw, ch = child.get_size()
-
             if self.parent.h == INFER:
                 max_h = max(
                     max_h, ch + self.parent.padding[1] + self.parent.padding[3] + child.margin[1] + child.margin[3])

@@ -4,7 +4,7 @@ from bgfactory.components.shape import Rectangle
 
 class CardSheet(Rectangle):
     
-    def __init__(self, w, h, cards):
+    def __init__(self, w, h, cards, reversed=False):
 
         super(CardSheet, self).__init__(0, 0, w, h, 0, fill_src=COLOR_WHITE)
         
@@ -18,23 +18,26 @@ class CardSheet(Rectangle):
         MIN_PADDING_X = 0.035 * w
         MIN_PADDING_Y = 0.02 * h
         
-        ncols = int((w - MIN_PADDING_X * 2) // cw)
-        nrows = int((h - MIN_PADDING_Y * 2) // ch)
+        self.ncols = int((w - MIN_PADDING_X * 2) // cw)
+        self.nrows = int((h - MIN_PADDING_Y * 2) // ch)
         
-        padx = (w - ncols * cw) // 2
-        pady = (h - nrows * ch) // 2
+        padx = (w - self.ncols * cw) // 2
+        pady = (h - self.nrows * ch) // 2
         
         # print(padx, pady)
         # print(h, ch)
         # print(nrows)
         
-        for i in range(nrows):
-            for j in range(ncols):
-                index = i * ncols + j
+        for i in range(self.nrows):
+            for j in range(self.ncols):
+                index = i * self.ncols + j
                 if (index < len(cards)):
                     card = cards[index]
                     
-                    card.x = padx + j*cw
+                    if reversed:
+                        card.x = self.w - padx - (j + 1) * cw
+                    else:
+                        card.x = padx + j * cw
                     card.y = pady + i*ch
                     self.add(card)
         

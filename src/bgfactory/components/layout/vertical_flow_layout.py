@@ -54,7 +54,6 @@ class VerticalFlowLayout(LayoutManager):
         for i, child in enumerate(children):
             
             cw, ch = child.get_size()
-
             if cw == FILL:
                 cw = '100%'
             if ch == FILL:
@@ -73,9 +72,9 @@ class VerticalFlowLayout(LayoutManager):
             children_dimensions.append((cw, ch))
 
         if h_content > h_padded - h_margins:
-            print(h_content)
-            print(h_padded)
-            print(h_margins)
+            # print(h_content)
+            # print(h_padded)
+            # print(h_margins)
             warn('Children overflow the height of the layout')
             
         # remainder_h_content = max(remainder_h_content, 0)

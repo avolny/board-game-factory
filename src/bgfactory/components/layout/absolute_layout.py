@@ -31,7 +31,7 @@ class AbsoluteLayout(LayoutManager):
         max_w, max_h = 0, 0
         # infer required dimensions
         for i, child in enumerate(self.parent.children):
-            cw, ch = child.get_size()
+            cw, ch = child.get_size()            
             cx = child.x
             cy = child.y
             
@@ -64,7 +64,6 @@ class AbsoluteLayout(LayoutManager):
             # im_ = Image.new('RGBA', (self.w, self.h), COLOR_TRANSPARENT)
             
             cw, ch = child.get_size()
-            
             if cw == FILL:
                 cw = '100%'
             if ch == FILL:

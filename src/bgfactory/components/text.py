@@ -32,6 +32,9 @@ class FontDescription():
             stretch=pango.Stretch.NORMAL,
             gravity=pango.Gravity.AUTO):
         
+        self.family = family
+        self.size = size
+        
         self._desc = pango.FontDescription()
         self._desc.set_family(family)
         self._desc.set_absolute_size(size * PANGO_SCALE)
@@ -53,6 +56,11 @@ class _TextComponent(Component):
         self.halign = halign
         self.valign = valign
         
+        if w == FILL:
+            raise ValueError('Width on a text component cannot be set to fill.'
+                             'This is because of the function get_size() it has'
+                             'no way to find out the available space')
+        
         super(_TextComponent, self).__init__(x, y, w, h, margin)
 
     @abstractmethod
@@ -66,8 +74,8 @@ class _TextComponent(Component):
         if isinstance(w, (int, float)):
             fw = w
         if isinstance(h, (int, float)):
-            fw = h
-
+            fh = h
+            
         # substitute in the dimensions that are known to infer the unknown ones
         _, _, tw, th = self._get_text_size(fw, fh)
 
@@ -99,8 +107,8 @@ class _TextComponent(Component):
 
         htext += self.yoffset
 
-        x = -xoffset
-        y = self.yoffset - yoffset
+        # x = -xoffset
+        # y = self.yoffset - yoffset
         
         # print(w, h)
 
@@ -108,11 +116,19 @@ class _TextComponent(Component):
             x = w / 2 - (wtext) / 2 - xoffset
         elif (self.halign == HALIGN_RIGHT):
             x = w - wtext - xoffset
+        else:
+            x = -xoffset
+        # else:
+        #     x -= xoffset
 
         if (self.valign == VALIGN_MIDDLE):
             y = h / 2 - htext / 2 + self.yoffset - yoffset
-        if (self.valign == VALIGN_BOTTOM):
+        elif (self.valign == VALIGN_BOTTOM):
             y = h - htext + self.yoffset - yoffset
+        else:
+            y = self.yoffset - yoffset
+        # else:
+        #     y += self.yoffset - yoffset
             
         # print(self.halign, self.valign, x, y, xoffset, yoffset, wtext, htext)
         
@@ -130,7 +146,7 @@ class TextMarkup(_TextComponent):
     """
     dummy_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
 
-    def __init__(self, x, y, w, h, text, font_desc, spacing=3, halign=HALIGN_LEFT,
+    def __init__(self, x, y, w, h, text, font_description=FontDescription(), spacing=0.0, halign=HALIGN_LEFT,
                  valign=VALIGN_TOP, yoffset=0, text_replace_map: Mapping[str, Component]=None, margin=(0, 0, 0, 0)):
         """
         Initialize Text component that uses pango markup 
@@ -162,7 +178,7 @@ class TextMarkup(_TextComponent):
         if text_replace_map is None:
             text_replace_map = dict()
         self.text_replace_map = text_replace_map
-        self.font_desc = font_desc
+        self.font_desc = font_description
         
         super(TextMarkup, self).__init__(x, y, w, h, text, halign, valign, yoffset, margin)
         
@@ -328,10 +344,10 @@ class TextMarkup(_TextComponent):
     def _get_pc_layout(self, cr, w, h):
         pc_layout = pc.create_layout(cr)
         if w is not None:
-            pc_layout.set_width(w * PANGO_SCALE)
+            pc_layout.set_width(int(w * PANGO_SCALE))
         pc_layout.set_font_description(self.font_desc._desc)
         pc_layout.set_markup(self.text)
-        pc_layout.set_spacing(self.spacing)
+        pc_layout.set_spacing(int(self.spacing * self.font_desc.size * PANGO_SCALE))
         pc_layout.set_alignment(convert_to_pango_align(self.halign))
 
         return pc_layout
@@ -366,7 +382,7 @@ class TextUniform(_TextComponent):
         self.fill_src = convert_source(fill_src)
         self.stroke_width = stroke_width
         self.stroke_src = convert_source(stroke_src)
-        self.spacing = spacing * PANGO_SCALE
+        self.spacing = spacing
         self.outline_line_join = outline_line_join
         
         super(TextUniform, self).__init__(x, y, w, h, text, halign, valign, yoffset, margin)
@@ -401,10 +417,9 @@ class TextUniform(_TextComponent):
         pc_layout = pc.create_layout(cr)
         if w is not None:
             pc_layout.set_width(int(w) * PANGO_SCALE)
-        desc = self.font_description.get_pango_font_description()
-        pc_layout.set_font_description(desc)
+        pc_layout.set_font_description(self.font_description._desc)
         pc_layout.set_text(self.text)
-        pc_layout.set_spacing(self.spacing)
+        pc_layout.set_spacing(int(self.spacing * self.font_description.size * PANGO_SCALE))
         pc_layout.set_alignment(convert_to_pango_align(self.halign))
         
         return pc_layout
@@ -414,7 +429,7 @@ class TextUniform(_TextComponent):
         pc_layout = self._get_pc_layout(cr, w, h)
 
         ink, logical = pc_layout.get_extents()
-        pc_layout.get_iter()
+        # pc_layout.get_iter()
         
         return ink.x / PANGO_SCALE - self.stroke_width, logical.y / PANGO_SCALE - self.stroke_width, \
                ink.width / PANGO_SCALE + 2 * self.stroke_width, \

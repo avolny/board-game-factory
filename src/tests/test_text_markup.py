@@ -29,7 +29,7 @@ class TestTextMarkup(ComponentRegressionTestCase):
         
         text = TextMarkup(
             0, 0, textw, texth, TestTextMarkup.TEXT[textid], halign=halign, valign=valign, 
-            text_replace_map=TestTextMarkup.REPLACEMENT[textid], font_desc=FontDescription())
+            text_replace_map=TestTextMarkup.REPLACEMENT[textid], font_description=FontDescription())
 
         card.add(text)
 

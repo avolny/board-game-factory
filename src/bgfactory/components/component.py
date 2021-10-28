@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from math import ceil
+from warnings import warn
 
 import cairocffi as cairo
 
@@ -35,7 +36,7 @@ class Component(ABC):
         return surface
     
     def image(self):
-        w, h = self.get_size()
+        w, h = self.get_size()        
         return image_from_surface(self.draw(w, h))
     
     @abstractmethod
@@ -60,7 +61,7 @@ class Container(Component):
         super(Container, self).__init__(x, y, w, h, margin)
     
     def get_size(self):
-        return self.layout.get_size()
+        return self.layout.get_size()    
     
     def add(self, child):
         self.layout.validate_child(child)
