@@ -91,16 +91,22 @@ class Rectangle(Shape):
 class Circle(Shape):
 
     def __init__(self, x, y, radius, stroke_width=3, padding=(0, 0, 0, 0), **kwargs):
-        self.radius = radius
+        if radius == FILL or is_percent(radius):
+            w = radius # just pass fill or %, these values are computed later upstream
+            h = radius
+        else:
+            w = 2 * radius
+            h = 2 * radius
 
-        super(Circle, self).__init__(x, y, 2 * radius, 2 * radius, stroke_width=stroke_width, padding=[e + stroke_width for e in padding], **kwargs)
+        super(Circle, self).__init__(x, y, w, h, stroke_width=stroke_width, 
+                                     padding=[e + stroke_width for e in padding], **kwargs)
 
     def _draw(self, surface: cairo.Surface, w, h):
         cr = cairo.Context(surface)
 
         x, y, w_shape, h_shape = adjust_rect_size_by_line_width(0, 0, w, h, self.stroke_width)
         
-        draw_radius = w_shape / 2
+        draw_radius = min(w_shape, h_shape) / 2
         
         cr.arc(int(x + w_shape / 2), int(y + h_shape / 2), draw_radius, 0, 2 * math.pi)
         
