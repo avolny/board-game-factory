@@ -1,12 +1,15 @@
-from bgfactory.components.constants import COLOR_WHITE
-from bgfactory.components.shape import Rectangle
+from bgfactory.components.constants import COLOR_WHITE, INFER
+from bgfactory.components.shape import Rectangle, Line
+from bgfactory.components.text import TextUniform, FontDescription
 
 
 class CardSheet(Rectangle):
     
-    def __init__(self, w, h, cards, reversed=False):
+    def __init__(self, w, h, cards, reversed=False, cutlines=True, page=None):
 
         super(CardSheet, self).__init__(0, 0, w, h, 0, fill_src=COLOR_WHITE)
+
+        self.cutlines = cutlines
         
         card0 = cards[0]
         for card in cards:
@@ -40,6 +43,24 @@ class CardSheet(Rectangle):
                         card.x = padx + j * cw
                     card.y = pady + i*ch
                     self.add(card)
+                    
+        if page:
+            self.add(TextUniform(w * 0.9, h - pady * 0.7, INFER, INFER, str(page), FontDescription(size=pady * 0.4)))
+                    
+        if cutlines:
+            pad_outside = 35
+            pad_inside = 15
+            for i in range(self.nrows + 1):
+                self.add(Line(pad_outside, pady + ch * i, padx - pad_inside, pady + ch * i, 
+                              stroke_width=2, dash={'dashes': [10, 5]}))
+                self.add(Line(w - padx + pad_inside, pady + ch * i, w - pad_outside, pady + ch * i,
+                              stroke_width=2, dash={'dashes': [10, 5]}))
+                
+            for i in range(self.nrows + 1):
+                self.add(Line(padx + cw * i, pad_outside, padx + cw * i, pady - pad_inside, 
+                              stroke_width=2, dash={'dashes': [10, 5]}))
+                self.add(Line(padx + cw * i, h - pady + pad_inside, padx + cw * i, h - pad_outside,
+                              stroke_width=2, dash={'dashes': [10, 5]}))
         
     def get_size(self):
         return self.w, self.h
