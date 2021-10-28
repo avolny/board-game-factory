@@ -8,6 +8,7 @@ import cairocffi as cairo
 import pangocffi as pango
 import pangocairocffi as pc
 
+from bgfactory.common.config import bgfconfig
 from bgfactory.components.component import Component
 from bgfactory.components.constants import COLOR_BLACK, INFER, HALIGN_LEFT, VALIGN_TOP, \
     HALIGN_CENTER, HALIGN_RIGHT, VALIGN_MIDDLE, VALIGN_BOTTOM, FILL
@@ -293,6 +294,7 @@ class TextMarkup(_TextComponent):
                 cr.move_to(replacement_x, replacement_y)
                 cr.rectangle(replacement_x, replacement_y, replacement_width, replacement_height)
                 cr.set_operator(cairo.OPERATOR_CLEAR)
+                cr.set_tolerance(bgfconfig.tolerance)
                 cr.fill()
                 cr.restore()
                 
@@ -329,8 +331,9 @@ class TextMarkup(_TextComponent):
                 # print(y_baseline)
                 # print(h)
                 # print(y_glyph)
-                
+
                 cr.set_source_surface(surface, x_glyph, y_glyph)
+                cr.set_tolerance(bgfconfig.tolerance)
                 cr.paint()
                 
                 replacement_glyph = None
@@ -409,6 +412,7 @@ class TextUniform(_TextComponent):
         cr.set_operator(cairo.OPERATOR_SOURCE)
         pc.update_layout(cr, pc_layout)
         pc.layout_path(cr, pc_layout)
+        cr.set_tolerance(bgfconfig.tolerance)
         cr.fill()
         cr.restore()
         profile()

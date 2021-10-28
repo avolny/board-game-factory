@@ -4,17 +4,19 @@ from warnings import warn
 
 import cairocffi as cairo
 
+from bgfactory.common.config import bgfconfig
 from bgfactory.components.cairo_helpers import adjust_rect_size_by_line_width
 from bgfactory.components.component import Container
-from bgfactory.components.constants import COLOR_BLACK, COLOR_WHITE
+from bgfactory.components.constants import COLOR_BLACK, COLOR_WHITE, FILL
 from bgfactory.components.source import convert_source
+from bgfactory.components.utils import is_percent
 
 
 class Shape(Container):
 
     def __init__(self, x, y, w, h, stroke_width=3, stroke_src=COLOR_BLACK,
                  fill_src=COLOR_WHITE, layout=None, margin=(0, 0, 0, 0), padding=(0, 0, 0, 0),
-                 dash=None, line_cap=None, line_join=None, tolerance=0.1):
+                 dash=None, line_cap=None, line_join=None):
         
         if stroke_src[3] < 1:
             warn('The stroke overlaps the fill area, with transparent stroke, you will see the fill through '
@@ -27,7 +29,6 @@ class Shape(Container):
         self.dash = dash
         self.line_cap = line_cap
         self.line_join = line_join
-        self.tolerance = tolerance
 
         super(Shape, self).__init__(x, y, w, h, margin, [e + stroke_width for e in padding], layout)
         
@@ -38,8 +39,7 @@ class Shape(Container):
             cr.set_line_cap(self.line_cap)
         if self.line_join:
             cr.set_line_join(self.line_join)
-        if self.tolerance: # fidelity
-            cr.set_tolerance(self.tolerance)
+        cr.set_tolerance(bgfconfig.tolerance)
         cr.set_line_width(self.stroke_width)
         if self.fill_src:
             self.fill_src.set(cr, 0, 0, w, h)
