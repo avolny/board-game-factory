@@ -265,6 +265,15 @@ class Grid(Component):
             widths.append(cw)
             w_remainder -= cw
             
+        while w_remainder > 0:
+            for i in range(len(widths)):
+                delta = min(1, w_remainder)
+                w_remainder -= delta
+                widths[i] += delta
+                
+                if w_remainder <= 0:
+                    break
+            
         if w_remainder < 0 and w > 0:
             warn('The grid contents are wider than the grid component itself.')
             
@@ -304,6 +313,15 @@ class Grid(Component):
 
             heights.append(ch)
             h_remainder -= ch
+
+        while h_remainder > 0:
+            for i in range(len(heights)):
+                delta = min(1, h_remainder)
+                h_remainder -= delta
+                heights[i] += delta
+
+                if h_remainder <= 0:
+                    break
 
         if h_remainder < 0 and h > 0:
             warn('The grid contents are taller than the grid component itself.')
