@@ -51,7 +51,11 @@ class FontDescription():
 class _TextComponent(Component):
 
     def __init__(self, x, y, w, h, text, halign, valign, yoffset, margin):
-
+        
+        if not isinstance(text, str):
+            # warn(f'text={text} is not string, converting by str()')
+            text = str(text)
+        
         self.text = text
         self.yoffset = yoffset
         self.halign = halign
