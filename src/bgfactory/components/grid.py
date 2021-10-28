@@ -37,8 +37,8 @@ class Grid(Component):
         :param y: y coordinate of the Grid 
         :param w: width of the Grid, values: px, '{value}%', INFER, FILL 
         :param h: height of the Grid, values: px, '{value}%', INFER, FILL
-        :param cols: list of column widths, possible values: px, '{value}%', INFER, FILL
-        :param rows: list of row heights, possible values: px, '{value}%', INFER, FILL
+        :param cols: int for number of uniform columns, or list of column widths, possible values: px, '{value}%', INFER, FILL
+        :param rows: int for number of uniform rows, list of row heights, possible values: px, '{value}%', INFER, FILL
         :param hspace: sets horizontal spaces between columns, either float or a list of spacings, when using
         the list, the following must hold: len(hspace) = len(cols) - 1
         :param vspace: sets vertical spaces between rows, either float or a list of spacings, when using
@@ -61,6 +61,11 @@ class Grid(Component):
         self.stroke_src = convert_source(stroke_src)
         self.fill_src = convert_source(fill_src)
         self.padding = [e + stroke_width for e in padding]
+
+        if isinstance(rows, int):
+            rows = [f'{100 / rows:.02f}%'] * rows
+        if isinstance(cols, int):
+            cols = [f'{100 / cols:.02f}%'] * cols
 
         self.rows = rows
         self.cols = cols
@@ -199,8 +204,17 @@ class Grid(Component):
         for k in range(cell._gridw):
             self.cells[i + 1][j + k] = None
     
-    def add(self, child, i, j):
+    def add(self, i, j, child):
         self.cells[i][j].add(child)
+        
+    def __getitem__(self, item):
+        if isinstance(item, (list, tuple)) and len(item) in [1, 2]:
+            if len(item) == 2:
+                return self.cells[item[0]][item[1]]
+            else:
+                return self.cells[item]
+        else:
+            raise ValueError('Only single integer or 2-tuple indexing is allowed like grid[3] or grid[1, 2]')
 
     def _draw_outline(self, surface: cairo.Surface, w, h):
         cr = cairo.Context(surface)
@@ -392,7 +406,7 @@ class GridCell(Rectangle):
 
 if __name__ == '__main__':
     
-    rect = Rectangle(0, 0, 500, 500, stroke_width=0, fill_color=COLOR_WHITE)
+    rect = Rectangle(0, 0, 500, 500, stroke_width=0, fill_src=COLOR_WHITE)
     
     grid = Grid(30, 30, 400, 400,
         ['5%', '30%', '10%', FILL],
@@ -424,7 +438,7 @@ if __name__ == '__main__':
     # grid.image().show()
     rect.add(grid)
     
-    rect.image().save('output/test grid.png')
+    # rect.image().save('output/test grid.png')
     rect.image().show()
 
     
