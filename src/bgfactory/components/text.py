@@ -432,7 +432,7 @@ class TextUniform(_TextComponent):
         # pc_layout.get_iter()
         
         return ink.x / PANGO_SCALE - self.stroke_width, logical.y / PANGO_SCALE - self.stroke_width, \
-               ink.width / PANGO_SCALE + 2 * self.stroke_width, \
+               ink.width / PANGO_SCALE + 2 * self.stroke_width + 1, \
                logical.height / PANGO_SCALE + 2 * self.stroke_width
     
 if __name__ == '__main__':
