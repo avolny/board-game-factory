@@ -104,7 +104,7 @@ class Grid(Component):
         if vspace is None:
             vspace = 0
         if isinstance(vspace, (int, float)):
-            self.vspace = [vspace] * (nrows - 1)
+            self.vspace = [round(vspace)] * (nrows - 1)
         elif isinstance(vspace, Iterable):
             self.vspace = list(vspace)
             if len(self.vspace) != nrows - 1:
@@ -136,7 +136,7 @@ class Grid(Component):
                 
                 self.cells[i].append(GridCell(cols[j], rows[i], 1, 1, **kwargs))
                 
-        super(Grid, self).__init__(x, y, w, h, margin)
+        super(Grid, self).__init__(x, y, round(w), round(h), margin)
 
     def cell_merge_right(self, i, j):
         """
@@ -288,8 +288,10 @@ class Grid(Component):
         if h is None:
             h = 0
 
-        h_available = h - self.padding[1] - self.padding[3] - sum(self.vspace)
+        h_available = h - round(self.padding[1]) - round(self.padding[3]) - sum(self.vspace)
         h_remainder = h_available
+        
+        print(h_available)
 
         for i in range(nrows):
 
@@ -321,6 +323,7 @@ class Grid(Component):
                 heights[i] += delta
 
                 if h_remainder <= 0:
+                    print(i, delta)
                     break
 
         if h_remainder < 0 and h > 0:
