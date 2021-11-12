@@ -27,9 +27,9 @@ class TestTextMarkup(ComponentRegressionTestCase):
             0, 0, 200, 200, stroke_width=5, stroke_src=(1, 0, 0, 1),
             fill_src=(0, 1, 0, 0.5), layout=VerticalFlowLayout(halign))
         
-        text = TextMarkup(
-            0, 0, textw, texth, TestTextMarkup.TEXT[textid], halign=halign, valign=valign, 
-            text_replace_map=TestTextMarkup.REPLACEMENT[textid], font_description=FontDescription())
+        text = TextMarkup(0, 0, textw, texth, TestTextMarkup.TEXT[textid], font_description=FontDescription(),
+                          halign=halign, valign=valign, text_replace_map=TestTextMarkup.REPLACEMENT[textid],
+                          spacing=0.0)
 
         card.add(text)
 
