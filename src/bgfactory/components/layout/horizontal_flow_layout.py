@@ -185,5 +185,5 @@ if __name__ == '__main__':
             card.add(box2)
             rect.add(card)
 
-    rect.image().show()
-    # card.image().save('output/test_vertflow.png')
+    # rect.image().show()
+    card.image().save('output/test_vertflow.png')

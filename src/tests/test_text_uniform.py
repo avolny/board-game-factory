@@ -24,7 +24,7 @@ class TestTextUniform(ComponentRegressionTestCase):
         text = TextUniform(
             0, 0, textw, texth, TestTextUniform.TEXT[textid], font_desc, halign=halign, valign=valign,
             stroke_width=3, fill_src=(0.3, 0.7, 0.3, 0.5), stroke_src=(0.7, 0.3, 0.7, 0.9), 
-            outline_line_join=cairocffi.LINE_JOIN_ROUND
+            outline_line_join=cairocffi.LINE_JOIN_ROUND, spacing=0.125
         )
 
         card.add(text)

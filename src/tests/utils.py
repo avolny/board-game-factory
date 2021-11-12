@@ -5,6 +5,10 @@ from unittest import TestCase
 from PIL import Image
 
 
+SHOW_MISMATCH = True
+ASSERT_ON = False
+
+
 def get_reference_img_path(folder, *args):
     return get_reference_dir_path(folder) + '_'.join(map(str, args)) + '.png'
 
@@ -13,17 +17,25 @@ def get_reference_dir_path(folder):
     return 'assets/tests/reference/' + folder + '/'
 
 
-def assert_images_equal(im1: Image, im2: Image, ref_path):
+def assert_images_equal(im1: Image, im2: Image, ref_path, args):
     assert im1.mode == im2.mode, im1.mode + " " + im2.mode
     assert im1.size == im2.size
     
     for pix1, pix2 in zip(im1.getdata(), im2.getdata()):
         
         if pix1 != pix2:
-            im1.show(title="reference " + ref_path)
-            im2.show(title="tested " + ref_path)
+            print(f'test failed with args: {args}')
+            
+            if SHOW_MISMATCH:
+                im1.show(title="reference " + ref_path)
+                im2.show(title="tested " + ref_path)
         
-        assert pix1 == pix2, str(pix1) + " " + str(pix2) + " " + ref_path
+            if ASSERT_ON:
+                assert pix1 == pix2, str(pix1) + " " + str(pix2) + " " + ref_path
+                
+            return
+
+    print(f'test passed with args: {args}')
         
         
 class ComponentRegressionTestCase(TestCase):
@@ -59,4 +71,4 @@ class ComponentRegressionTestCase(TestCase):
             path = get_reference_img_path(type(self).__name__, *args)
             im_ref = Image.open(path)
 
-            assert_images_equal(im_ref, im, path)
+            assert_images_equal(im_ref, im, path, args)

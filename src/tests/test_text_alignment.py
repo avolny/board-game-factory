@@ -17,7 +17,7 @@ class TestTextAlignment(ComponentRegressionTestCase):
             fill_src=(0, 1, 0, 0.9), layout=VerticalFlowLayout(halign))
         
         text = TextUniform(
-            0, 0, textw, texth, TestTextAlignment.TEXT[textid], halign=halign, valign=valign)
+            0, 0, textw, texth, TestTextAlignment.TEXT[textid], halign=halign, valign=valign, spacing=0.25)
 
         card.add(text)
 

@@ -151,7 +151,7 @@ class TextMarkup(_TextComponent):
     """
     dummy_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
 
-    def __init__(self, x, y, w, h, text, font_description=FontDescription(), spacing=0.0, halign=HALIGN_LEFT,
+    def __init__(self, x, y, w, h, text, font_description=FontDescription(), spacing=0.115, halign=HALIGN_LEFT,
                  valign=VALIGN_TOP, yoffset=0, text_replace_map: Mapping[str, Component]=None, margin=(0, 0, 0, 0)):
         """
         Initialize Text component that uses pango markup 
@@ -381,7 +381,7 @@ class TextUniform(_TextComponent):
     """
     dummy_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
     
-    def __init__(self, x, y, w, h, text, font_description=FontDescription(), spacing=3, halign=HALIGN_LEFT,
+    def __init__(self, x, y, w, h, text, font_description=FontDescription(), spacing=0.115, halign=HALIGN_LEFT,
                  valign=VALIGN_TOP, fill_src=COLOR_BLACK, stroke_width=0, stroke_src=None,
                  outline_line_join=cairo.LINE_JOIN_MITER, yoffset=0, margin=(0,0,0,0)):
         
@@ -462,8 +462,8 @@ if __name__ == '__main__':
     # text = TextMarkup(
     #     10, 10, '100%', '100%', markup, halign=HALIGN_CENTER, valign=VALIGN_MIDDLE, text_replace_map={'&': replace_glyph})
 
-    text = TextMarkup(
-        10, 10, '100%', '100%', '<span foreground="#ff0000">this is\na longer text</span>', halign=HALIGN_RIGHT, valign=VALIGN_BOTTOM)
+    text = TextMarkup(10, 10, '100%', '100%', '<span foreground="#ff0000">this is\na longer text</span>',
+                      halign=HALIGN_RIGHT, valign=VALIGN_BOTTOM)
     
     bg.add(text)
     bg.image().show()

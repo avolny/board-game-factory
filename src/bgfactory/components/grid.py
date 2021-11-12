@@ -1,5 +1,5 @@
 from collections import Iterable
-from math import floor
+from math import floor, ceil
 from warnings import warn
 
 import cairocffi as cairo
@@ -232,6 +232,80 @@ class Grid(Component):
         self.stroke_src.set(cr, 0, 0, w, h)
         cr.stroke()
         
+    def _get_cell_area_width(self, w):
+        """
+        Returns width to be filled by cells
+        :param w: 
+        :return: 
+        """
+        if self.cols[-1] == FILL:
+            return w
+        else:
+            total_percent = 0
+            total_pixels = 0
+            
+            for j, col_def in enumerate(self.cols):
+                if col_def == INFER:
+                    total_pixels += self._infer_col_width(j)
+                elif is_percent(col_def):
+                    total_percent += parse_percent(col_def)
+                else:
+                    total_pixels += col_def
+                    
+            w_remainder = w - total_pixels
+            
+            w_percent = ceil(total_percent * w_remainder)
+            
+            return max(0, min(total_pixels + w_percent, w))
+            
+    def _get_cell_area_height(self, h):
+        """
+        Returns height to be filled by cells
+        :param h: 
+        :return: 
+        """
+        if self.rows[-1] == FILL:
+            return h
+        else:
+            total_percent = 0
+            total_pixels = 0
+
+            for j, row_def in enumerate(self.rows):
+                if row_def == INFER:
+                    total_pixels += self._infer_row_height(j)
+                elif is_percent(row_def):
+                    total_percent += parse_percent(row_def)
+                else:
+                    total_pixels += row_def
+
+            h_remainder = h - total_pixels
+
+            h_percent = ceil(total_percent * h_remainder)
+
+            return max(0, min(total_pixels + h_percent, h))
+    
+    def _infer_col_width(self, col_id):
+        nrows = len(self.rows)
+        
+        w_max = 0
+        for i in range(nrows):
+            cell = self.cells[i][col_id]
+            if cell is not None and cell._can_infer and cell._gridw == 1: # do not use merged cells for inferring width
+                w_max = max(w_max, cell.get_size()[0])
+                
+        return w_max
+    
+    def _infer_row_height(self, row_id):
+        ncols = len(self.cols)
+        
+        h_max = 0
+        for j in range(ncols):
+            cell = self.cells[row_id][j]
+            if cell is not None and cell._can_infer and cell._gridh == 1:
+                h_max = max(h_max, cell.get_size()[1])
+                
+        return h_max
+    
     def _get_col_widths(self, w):
         # w is in pixels or None
         
@@ -243,7 +317,7 @@ class Grid(Component):
         if w is None:
             w = 0
         
-        w_available = w - self.padding[0] - self.padding[2] - sum(self.hspace)
+        w_available = self._get_cell_area_width(w - self.padding[0] - self.padding[2] - sum(self.hspace))
         w_remainder = w_available
         
         for j in range(ncols):
@@ -251,12 +325,7 @@ class Grid(Component):
             col_width = self.cols[j]
             
             if col_width == INFER:
-                w_max = 0
-                for i in range(nrows):
-                    cell = self.cells[i][j] 
-                    if cell is not None and cell._can_infer and cell._gridw == 1:
-                        w_max = max(w_max, self.cells[i][j].get_size()[0])
-                cw = w_max
+                cw = self._infer_col_width(j)
             elif is_percent(col_width):
                 cw = floor(parse_percent(col_width) * w_available)
             elif col_width == FILL:
@@ -292,28 +361,23 @@ class Grid(Component):
         if h is None:
             h = 0
 
-        h_available = h - round(self.padding[1]) - round(self.padding[3]) - sum(self.vspace)
+        h_available = self._get_cell_area_height(h - round(self.padding[1]) - round(self.padding[3]) - sum(self.vspace))
         h_remainder = h_available
         
         for i in range(nrows):
 
-            col_width = self.rows[i]
+            row_height = self.rows[i]
 
-            if col_width == INFER:
-                h_max = 0
-                for j in range(ncols):
-                    cell = self.cells[i][j]
-                    if cell is not None and cell._can_infer and cell._gridh == 1:
-                        h_max = max(h_max, self.cells[i][j].get_size()[1])
-                ch = h_max
-            elif is_percent(col_width):
-                ch = floor(parse_percent(col_width) * h_available)
-            elif col_width == FILL:
+            if row_height == INFER:
+                ch = self._infer_row_height(i)
+            elif is_percent(row_height):
+                ch = floor(parse_percent(row_height) * h_available)
+            elif row_height == FILL:
                 ch = h_remainder
-            elif isinstance(col_width, (float, int)):
-                ch = col_width
+            elif isinstance(row_height, (float, int)):
+                ch = row_height
             else:
-                raise ValueError('unrecognized width value: {}'.format(col_width))
+                raise ValueError('unrecognized height value: {}'.format(row_height))
 
             heights.append(ch)
             h_remainder -= ch

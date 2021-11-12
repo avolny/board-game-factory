@@ -121,7 +121,7 @@ class TestGrid(ComponentRegressionTestCase):
                 content = Rectangle(3, 3, 15 + i*2, 15 + j*2, stroke_width=1, stroke_src=(0.9, 0.6, 0.3, 1),
                                     fill_src=(0.3, 0.3, 0.6, 0.7))
                 if grid.cells[i][j]:
-                    grid.add(content, i, j)
+                    grid.add(i, j, content)
                     
         return rect
 
