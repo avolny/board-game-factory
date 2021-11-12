@@ -14,6 +14,18 @@ engine for board games, but inherently, it is in no way tied to making board gam
 even though it contains a couple convenience classes for that (such as CardSheet for 
 producing printable card sheets out of lists of components).
 
+## Installation
+
+Requires conda and having conda forge in channels (see https://conda-forge.org).
+
+Unfortunately the cairo and pango binary libraries cannot be installed directly 
+with pip. 
+
+````
+conda install cairo pango
+pip install board-game-factory
+````
+
 ## Features
 
  - High quality rendering - BGF is based fully in Vector Graphics, therefore allowing for renders of arbitrary resolution
