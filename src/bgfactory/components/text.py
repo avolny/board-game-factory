@@ -392,7 +392,7 @@ class TextUniform(_TextComponent):
         self.spacing = spacing
         self.outline_line_join = outline_line_join
         
-        super(TextUniform, self).__init__(x, y, w, h, text, halign, valign, yoffset, margin)
+        super(TextUniform, self).__init__(round(x), round(y), w, h, text, halign, valign, yoffset, margin)
         
     def _draw(self, surface, x, y, w, h):
         
@@ -440,7 +440,7 @@ class TextUniform(_TextComponent):
         # pc_layout.get_iter()
         
         return ink.x / PANGO_SCALE - self.stroke_width, logical.y / PANGO_SCALE - self.stroke_width, \
-               ink.width / PANGO_SCALE + 2 * self.stroke_width + 1, \
+               ink.width / PANGO_SCALE * 1.021 + 2 * self.stroke_width, \
                logical.height / PANGO_SCALE + 2 * self.stroke_width
     
 if __name__ == '__main__':

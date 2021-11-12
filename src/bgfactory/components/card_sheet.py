@@ -18,8 +18,8 @@ class CardSheet(Rectangle):
         
         cw, ch = card0.w, card0.h
         
-        MIN_PADDING_X = 0.035 * w
-        MIN_PADDING_Y = 0.02 * h
+        MIN_PADDING_X = 0.02 * min(w, h)
+        MIN_PADDING_Y = 0.02 * min(w, h)
         
         self.ncols = int((w - MIN_PADDING_X * 2) // cw)
         self.nrows = int((h - MIN_PADDING_Y * 2) // ch)
@@ -45,7 +45,7 @@ class CardSheet(Rectangle):
                     self.add(card)
                     
         if page:
-            self.add(TextUniform(w * 0.9, h - pady * 0.7, INFER, INFER, str(page), FontDescription(size=pady * 0.4)))
+            self.add(TextUniform(w * 0.9, h - pady * 0.7, INFER, INFER, str(page), FontDescription(size=min(50, pady * 0.4))))
                     
         if cutlines:
             pad_outside = 35

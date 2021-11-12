@@ -30,7 +30,7 @@ class Shape(Container):
         self.line_cap = line_cap
         self.line_join = line_join
 
-        super(Shape, self).__init__(x, y, w, h, margin, [e + stroke_width for e in padding], layout)
+        super(Shape, self).__init__(round(x), round(y), w, h, margin, [e + stroke_width for e in padding], layout)
         
     def stroke_and_fill(self, cr: cairo.Context, w, h):
         if self.dash:

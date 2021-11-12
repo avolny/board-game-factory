@@ -93,6 +93,8 @@ class Grid(Component):
                     raise ValueError('There can\'t be a column with width="fill" when w=="infer"')
                 if is_percent(col):
                     raise ValueError('There can\'t be a column with width=n% when w=="infer"')
+        elif isinstance(w, float):
+            w = round(w)
 
         if h == INFER:
             for row in self.rows:
@@ -100,6 +102,8 @@ class Grid(Component):
                     raise ValueError('There can\'t be a column with height="fill" when h=="infer"')
                 if is_percent(row):
                     raise ValueError('There can\'t be a column with height=n% when h=="infer"')
+        elif isinstance(h, float):
+            h = round(h)
 
         if vspace is None:
             vspace = 0
@@ -136,7 +140,7 @@ class Grid(Component):
                 
                 self.cells[i].append(GridCell(cols[j], rows[i], 1, 1, **kwargs))
                 
-        super(Grid, self).__init__(x, y, round(w), round(h), margin)
+        super(Grid, self).__init__(x, y, w, h, margin)
 
     def cell_merge_right(self, i, j):
         """
@@ -291,8 +295,6 @@ class Grid(Component):
         h_available = h - round(self.padding[1]) - round(self.padding[3]) - sum(self.vspace)
         h_remainder = h_available
         
-        print(h_available)
-
         for i in range(nrows):
 
             col_width = self.rows[i]
@@ -323,7 +325,6 @@ class Grid(Component):
                 heights[i] += delta
 
                 if h_remainder <= 0:
-                    print(i, delta)
                     break
 
         if h_remainder < 0 and h > 0:
@@ -374,11 +375,8 @@ class Grid(Component):
                     cr.set_source_surface(child_surface, cx, cy)
                     cr.paint()
                     profile()
-
-                    # print('{}, {}: cx {} cy {} cw {} ch {}'.format(i, j, cx, cy, cw, ch))
                 else:
                     pass
-                    # print('cell {}, {} is None'.format(i, j))
 
                 cx += widths[j]
                 if j < ncols - 1:
