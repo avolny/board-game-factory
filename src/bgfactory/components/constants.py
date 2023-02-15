@@ -1,5 +1,3 @@
-import pangocffi as pango
-
 COLOR_BLACK = (0, 0, 0, 1)
 COLOR_WHITE = (1, 1, 1, 1)
 COLOR_RED = (1, 0, 0, 1)

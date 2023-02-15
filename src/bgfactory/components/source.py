@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from collections import Iterable
+from collections.abc import Iterable
 
 import cairocffi as cairo
 from cairocffi import Context
@@ -20,7 +20,6 @@ def convert_source(src):
         else:
             raise ValueError('When using a tuple as a fill/stroke source, it must have '
                              'either length 3 (RGB) or 4 (RGBA)')
-        
     elif isinstance(src, Source):
         return src
     elif src is None:
@@ -28,7 +27,6 @@ def convert_source(src):
     else:
         raise ValueError('Fill/stroke source not recognized, type:{}, {}'.format(type(src), src))
         
-
 
 class Source(ABC):
     
@@ -99,11 +97,10 @@ class PNGSource(Source):
         self.valign = valign
         
         self.path = path
-    
-    
+
     def set(self, cairo_context: Context, x, y, w, h):
         
-        surface_img = cairo.ImageSurface.create_from_png(self.path)
+        surface_img = cairo.ImageSurface.create_from_png(str(self.path))
         
         iw = surface_img.get_width()
         ih = surface_img.get_height()

@@ -1,6 +1,7 @@
 from PIL import Image
 import cairocffi as cairo
 
+
 def image_from_surface(surface):
     surface_cropped = cairo.ImageSurface(cairo.FORMAT_ARGB32, surface.get_width(), surface.get_height())
     cr = cairo.Context(surface_cropped)
@@ -12,7 +13,6 @@ def image_from_surface(surface):
     
     # print(surface.get_width())
     # print(surface.get_height())
-    
     
     return Image.frombuffer(
         "RGBA", (surface_cropped.get_width(), surface_cropped.get_height()),

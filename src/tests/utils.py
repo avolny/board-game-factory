@@ -1,13 +1,19 @@
 import os
 from abc import abstractmethod
 from unittest import TestCase
+from warnings import warn
+
+import PIL
+import numpy as np
 
 from PIL import Image
 
 
 SHOW_MISMATCH = True
-ASSERT_ON = False
+ASSERT_ON = True
 
+if not ASSERT_ON:
+    warn('ASSERT_ON = False, tests won\'t fail when dissatisfied')
 
 def get_reference_img_path(folder, *args):
     return get_reference_dir_path(folder) + '_'.join(map(str, args)) + '.png'
@@ -20,15 +26,18 @@ def get_reference_dir_path(folder):
 def assert_images_equal(im1: Image, im2: Image, ref_path, args):
     assert im1.mode == im2.mode, im1.mode + " " + im2.mode
     assert im1.size == im2.size
-    
+
     for pix1, pix2 in zip(im1.getdata(), im2.getdata()):
         
         if pix1 != pix2:
             print(f'test failed with args: {args}')
             
             if SHOW_MISMATCH:
-                im1.show(title="reference " + ref_path)
-                im2.show(title="tested " + ref_path)
+                diff = Image.fromarray(np.abs(np.asarray(im1) - np.asarray(im2))[:, :, :3].mean(axis=2).astype(np.uint8), mode='L')
+                diff.show(title='difference ' + ref_path)
+
+                # im1.show(title="reference " + ref_path)
+                # im2.show(title="tested " + ref_path)
         
             if ASSERT_ON:
                 assert pix1 == pix2, str(pix1) + " " + str(pix2) + " " + ref_path

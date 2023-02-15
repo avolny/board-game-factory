@@ -12,6 +12,7 @@ from bgfactory.common.config import bgfconfig
 from bgfactory.components.component import Component
 from bgfactory.components.constants import COLOR_BLACK, INFER, HALIGN_LEFT, VALIGN_TOP, \
     HALIGN_CENTER, HALIGN_RIGHT, VALIGN_MIDDLE, VALIGN_BOTTOM, FILL
+from bgfactory.components.layout.vertical_flow_layout import VerticalFlowLayout
 from bgfactory.components.shape import Rectangle
 from bgfactory.components.pango_helpers import PANGO_SCALE, convert_to_pango_align, convert_extents
 from bgfactory.common.profiler import profile
@@ -23,7 +24,7 @@ SHOW_ME_DIMENSIONS = 'show_me_dimensions'
 
 
 class FontDescription():
-    
+
     def __init__(
             self,
             family="Arial",
@@ -35,14 +36,17 @@ class FontDescription():
         
         self.family = family
         self.size = size
-        
-        self._desc = pango.FontDescription()
-        self._desc.set_family(family)
-        self._desc.set_absolute_size(size * PANGO_SCALE)
-        self._desc.set_weight(weight)
-        self._desc.set_style(style)
-        self._desc.set_stretch(stretch)
-        self._desc.set_gravity(gravity)
+
+        font_desc = pango.FontDescription()
+
+        font_desc.family = family
+        font_desc.set_absolute_size(size * PANGO_SCALE)
+        font_desc.weight = weight
+        font_desc.style = style
+        font_desc.stretch = stretch
+        font_desc.gravity = gravity
+
+        self._desc = font_desc
     
     def get_pango_font_description(self):
         return self._desc
@@ -348,14 +352,26 @@ class TextMarkup(_TextComponent):
             if not layout_iter.next_char():
                 break
 
+    # def _get_pc_layout(self, cr, w, h):
+    #     pc_layout = pc.create_layout(cr)
+    #     if w is not None:
+    #         pc_layout._set_width(int(w * PANGO_SCALE))
+    #     pc_layout._set_font_description(self.font_desc._desc)
+    #     pc_layout._set_text(self.text)
+    #     pc_layout.set_markup(self.text)
+    #     pc_layout._set_spacing(int(self.spacing * self.font_desc.size * PANGO_SCALE))
+    #     pc_layout._set_alignment(convert_to_pango_align(self.halign))
+    #
+    #     return pc_layout
+
     def _get_pc_layout(self, cr, w, h):
         pc_layout = pc.create_layout(cr)
         if w is not None:
-            pc_layout.set_width(int(w * PANGO_SCALE))
-        pc_layout.set_font_description(self.font_desc._desc)
-        pc_layout.set_markup(self.text)
-        pc_layout.set_spacing(int(self.spacing * self.font_desc.size * PANGO_SCALE))
-        pc_layout.set_alignment(convert_to_pango_align(self.halign))
+            pc_layout.width = int(w) * PANGO_SCALE
+        pc_layout.set_font_description = self.font_desc._desc
+        pc_layout.apply_markup(self.text)
+        pc_layout.spacing = int(self.spacing * self.font_desc.size * PANGO_SCALE)
+        pc_layout.alignment = convert_to_pango_align(self.halign)
 
         return pc_layout
 
@@ -399,7 +415,7 @@ class TextUniform(_TextComponent):
         cr = cairo.Context(surface)
         
         pc_layout = self._get_pc_layout(cr, w, h)
-        
+
         profile('text.draw')
         if(self.stroke_src is not None):
             cr.move_to(x, y)
@@ -409,7 +425,7 @@ class TextUniform(_TextComponent):
             pc.update_layout(cr, pc_layout)
             pc.layout_path(cr, pc_layout)
             cr.stroke()
-        
+
         cr.save()
         cr.move_to(x, y)
         self.fill_src.set(cr, 0, 0, w, h)
@@ -424,11 +440,11 @@ class TextUniform(_TextComponent):
     def _get_pc_layout(self, cr, w, h):
         pc_layout = pc.create_layout(cr)
         if w is not None:
-            pc_layout.set_width(int(w) * PANGO_SCALE)
-        pc_layout.set_font_description(self.font_description._desc)
-        pc_layout.set_text(self.text)
-        pc_layout.set_spacing(int(self.spacing * self.font_description.size * PANGO_SCALE))
-        pc_layout.set_alignment(convert_to_pango_align(self.halign))
+            pc_layout.width = int(w) * PANGO_SCALE
+        pc_layout.font_description = self.font_description._desc
+        pc_layout.text = self.text
+        pc_layout.spacing = int(self.spacing * self.font_description.size * PANGO_SCALE)
+        pc_layout.alignment = convert_to_pango_align(self.halign)
         
         return pc_layout
         
@@ -444,29 +460,29 @@ class TextUniform(_TextComponent):
                logical.height / PANGO_SCALE + 2 * self.stroke_width
     
 if __name__ == '__main__':
-    
     bg = Rectangle(0, 0, 400, 400, layout=VerticalFlowLayout(HALIGN_CENTER))
-    
+
     text = TextUniform(
-        10, 10, '100%', '100%', "testing text", font_description=FontDescription(size=40),
+        10, 10, '100%', '100%', "testing\ntext", font_description=FontDescription(
+            size=24, family='Arial', style=pango.Style.OBLIQUE, weight=pango.Weight.BOLD),
         halign=HALIGN_CENTER, valign=VALIGN_MIDDLE, stroke_width=5, stroke_src=(1, 0, 0, 1), fill_src=(0, 1, 0, 1),
         outline_line_join=cairo.LINE_JOIN_ROUND
     )
-    
+
     markup = '&gt;&lt;&amp;<span font_desc="Arial Italic 20">testing text</span> and\n' +\
              '<span font_desc="Sans Bold 25" foreground="#ff3456">testing &amp;text 2&amp;</span>'
 
-    replace_glyph = Rectangle(0, 1, 15, 25, 5, stroke_color=(0.7, 0.5, 0.3, 1),
-                                     fill_color=(0.9, 0.4, 0.9, 0.75))
+    replace_glyph = Rectangle(0, 1, 15, 25, 5, stroke_src=(0.7, 0.5, 0.3, 1),
+                                     fill_src=(0.9, 0.4, 0.9, 0.75))
 
-    # text = TextMarkup(
-    #     10, 10, '100%', '100%', markup, halign=HALIGN_CENTER, valign=VALIGN_MIDDLE, text_replace_map={'&': replace_glyph})
+    text = TextMarkup(
+        10, 10, '100%', '100%', markup, halign=HALIGN_CENTER, valign=VALIGN_MIDDLE, text_replace_map={'&': replace_glyph})
 
-    text = TextMarkup(10, 10, '100%', '100%', '<span foreground="#ff0000">this is\na longer text</span>',
-                      halign=HALIGN_RIGHT, valign=VALIGN_BOTTOM)
-    
+    # text = TextMarkup(10, 10, '100%', '100%', '<span foreground="#ff0000">this is\na longer text</span>',
+    #                   halign=HALIGN_RIGHT, valign=VALIGN_BOTTOM)
+
     bg.add(text)
     bg.image().show()
-    bg.image().save('output/testing text3 .png')
+    # bg.image().save('output/testing text3 .png')
     
-    profile.results()
+    # profile.results()
