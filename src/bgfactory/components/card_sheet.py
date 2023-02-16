@@ -1,6 +1,7 @@
 from bgfactory.components.constants import COLOR_WHITE, INFER
 from bgfactory.components.shape import Rectangle, Line
 from bgfactory.components.text import TextUniform, FontDescription
+from bgfactory.components.utils import A4_WIDTH_MM, A4_HEIGHT_MM, mm_to_pixels
 
 
 class CardSheet(Rectangle):
@@ -48,7 +49,7 @@ class CardSheet(Rectangle):
             self.add(TextUniform(w * 0.9, h - pady * 0.7, INFER, INFER, str(page), FontDescription(size=min(50, pady * 0.4))))
                     
         if cutlines:
-            pad_outside = 35
+            pad_outside = 5
             pad_inside = 15
             for i in range(self.nrows + 1):
                 self.add(Line(pad_outside, pady + ch * i, padx - pad_inside, pady + ch * i, 
@@ -64,3 +65,48 @@ class CardSheet(Rectangle):
         
     def get_size(self):
         return self.w, self.h
+
+
+def make_printable_sheets(
+        components, dpi=300, print_margin_hor_mm=5, print_margin_ver_mm=5, page_width_mm=None, page_height_mm=None,
+        orientation='auto', cutlines=True, page_numbers=True):
+    if page_width_mm is None or page_height_mm is None:
+        page_width_mm = A4_WIDTH_MM
+        page_height_mm = A4_HEIGHT_MM
+
+    w = mm_to_pixels(page_width_mm - 2 * print_margin_hor_mm, dpi)
+    h = mm_to_pixels(page_height_mm - 2 * print_margin_ver_mm, dpi)
+
+    if orientation == 'auto':
+        sheet = CardSheet(w, h, components)
+        n_portrait = sheet.nrows * sheet.ncols
+
+        sheet = CardSheet(h, w, components)
+        n_landscape = sheet.nrows * sheet.ncols
+
+        if n_portrait >= n_landscape:
+            orientation = 'portrait'
+        else:
+            orientation = 'landscape'
+
+    if orientation == 'portrait':
+        w, h = w, h
+    elif orientation == 'landscape':
+        w, h = h, w
+    else:
+        raise ValueError(f'unknown {orientation=}, allowed values: auto, portrait, landscape')
+
+    sheet = CardSheet(w, h, components)
+    components_per_page = sheet.nrows * sheet.ncols
+
+    sheets = []
+
+    page = 1
+    for i in range(0, len(components), components_per_page):
+        sheet = CardSheet(
+            w, h, components[i:i + components_per_page], cutlines=cutlines, page=page if page_numbers else None)
+        page += 1
+
+        sheets.append(sheet)
+
+    return sheets
