@@ -8,7 +8,7 @@ from bgfactory.common.config import bgfconfig
 from bgfactory.components.cairo_helpers import adjust_rect_size_by_line_width
 from bgfactory.components.component import Container
 from bgfactory.components.constants import COLOR_BLACK, COLOR_WHITE, FILL
-from bgfactory.components.source import convert_source
+from bgfactory.components.source import convert_source, RGBASource
 from bgfactory.components.utils import is_percent
 
 
@@ -18,17 +18,19 @@ class Shape(Container):
                  fill_src=COLOR_WHITE, layout=None, margin=(0, 0, 0, 0), padding=(0, 0, 0, 0),
                  dash=None, line_cap=None, line_join=None):
         
-        if stroke_src[3] < 1:
-            warn('The stroke overlaps the fill area, with transparent stroke, you will see the fill through '
-                 'half of the border. If you absolutely need transparent border, create a custom component '
-                 'that renders them with different paths and check yourself for the desired result.')
-        
         self.stroke_width = stroke_width
         self.stroke_src = convert_source(stroke_src)
         self.fill_src = convert_source(fill_src)
         self.dash = dash
         self.line_cap = line_cap
         self.line_join = line_join
+
+        if isinstance(self.stroke_src, RGBASource) and 0 < self.stroke_src.rgba[3] < 1 and stroke_width > 0:
+            warn('The stroke overlaps the fill area, with partially transparent, non-zero-width stroke, you will see '
+                 'the fill through half of the border. If you absolutely need transparent border, create a custom '
+                 'component that renders them with different paths and check yourself for the desired result. Or '
+                 'even better, create a parent shape with the stroke fill and then place child shape in the middle '
+                 'with your current fill. This way you can control the border exactly')
 
         super(Shape, self).__init__(round(x), round(y), w, h, margin, [e + stroke_width for e in padding], layout)
         
