@@ -1,5 +1,6 @@
 from tests.test_grid import TestGrid
 from tests.test_horizontal_flow_layout2 import TestHorizontalFlowLayout2
+from tests.test_regular_polygon import TestRegularPolygon
 from tests.test_text_alignment import TestTextAlignment
 from tests.test_text_markup import TestTextMarkup
 from tests.test_text_uniform import TestTextUniform
@@ -15,4 +16,5 @@ if __name__ == '__main__':
     # TestTextUniform.generate_reference()
     # TestTextMarkup.generate_reference()
     # TestGrid.generate_reference()
+    # TestRegularPolygon.generate_reference()
     pass
