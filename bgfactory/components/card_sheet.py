@@ -72,7 +72,7 @@ class CardSheet(Rectangle):
 
 def make_printable_sheets(
         components, dpi=300, print_margin_hor_mm=5, print_margin_ver_mm=5, page_width_mm=None, page_height_mm=None,
-        orientation='auto', cutlines=True, page_numbers=True, out_dir_path=None):
+        orientation='auto', cutlines=True, page_numbers=True, out_dir_path=None, out_file_prefix='sheet'):
     if page_width_mm is None or page_height_mm is None:
         page_width_mm = A4_WIDTH_MM
         page_height_mm = A4_HEIGHT_MM
@@ -118,6 +118,6 @@ def make_printable_sheets(
         makedirs(out_dir_path, exist_ok=True)
 
         for index, sheet in enumerate(sheets):
-            sheet.image().save(out_dir_path / f'sheet{index:02d}.png')
+            sheet.image().save(out_dir_path / f'{out_file_prefix}{index:02d}.png')
 
     return sheets

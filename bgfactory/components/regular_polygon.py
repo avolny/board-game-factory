@@ -7,7 +7,7 @@ from bgfactory.components.shape import Shape
 
 class RegularPolygon(Shape):
 
-    def __init__(self, x, y, num_points, radius, rotation=0, fill_src=COLOR_WHITE, stroke_width=5,
+    def __init__(self, x, y, radius, num_points, rotation=0, fill_src=COLOR_WHITE, stroke_width=5,
                  stroke_src=COLOR_BLACK, **kwargs):
         self.radius = radius
         self.rotation = rotation

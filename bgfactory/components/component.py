@@ -9,8 +9,8 @@ from bgfactory.components.constants import FILL
 from bgfactory.components.layout.absolute_layout import AbsoluteLayout
 from bgfactory.common.profiler import profile
 
-# DEBUG = True
 DEBUG = False
+# DEBUG = True
 
 class Component(ABC):
     
@@ -46,26 +46,39 @@ class Component(ABC):
         
 class Container(Component):
     
-    def __init__(self, x, y, w, h, margin=(0, 0, 0, 0), padding=(0, 0, 0, 0), layout=None):
-
-        self.children = []
+    def __init__(self, x, y, w, h, margin=(0, 0, 0, 0), padding=(0, 0, 0, 0), layout=None, children=None):
 
         if layout is None:
             self.layout = AbsoluteLayout()
         else:
             self.layout = layout
-        
+
         self.padding = padding
         self.layout.set_parent(self)
 
         super(Container, self).__init__(x, y, w, h, margin)
+
+        if children is None:
+            self.children = []
+        else:
+            if not isinstance(children, (list, tuple)):
+                raise TypeError(f'children must be list or tuple but is {type(children)=}')
+            self.children = list(children)
+
+            for child in self.children:
+                self.layout.validate_child(child)
     
     def get_size(self):
         return self.layout.get_size()    
     
-    def add(self, child):
+    def add(self, child, *other_children):
         self.layout.validate_child(child)
         self.children.append(child)
+
+        for child in other_children:
+            self.layout.validate_child(child)
+            self.children.append(child)
+
         
     def _draw(self, surface, w, h):
         """

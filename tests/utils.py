@@ -25,7 +25,7 @@ def get_reference_dir_path(folder):
 
 def assert_images_equal(im1: Image, im2: Image, ref_path, args):
     assert im1.mode == im2.mode, im1.mode + " " + im2.mode
-    assert im1.size == im2.size
+    assert im1.size == im2.size, f'{im1.size} {im2.size}'
 
     for pix1, pix2 in zip(im1.getdata(), im2.getdata()):
         

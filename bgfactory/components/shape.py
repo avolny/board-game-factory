@@ -16,7 +16,7 @@ class Shape(Container):
 
     def __init__(self, x, y, w, h, stroke_width=3, stroke_src=COLOR_BLACK,
                  fill_src=COLOR_WHITE, layout=None, margin=(0, 0, 0, 0), padding=(0, 0, 0, 0),
-                 dash=None, line_cap=None, line_join=None):
+                 dash=None, line_cap=None, line_join=None, children=None):
         
         self.stroke_width = stroke_width
         self.stroke_src = convert_source(stroke_src)
@@ -32,7 +32,8 @@ class Shape(Container):
                  'even better, create a parent shape with the stroke fill and then place child shape in the middle '
                  'with your current fill. This way you can control the border exactly')
 
-        super(Shape, self).__init__(round(x), round(y), w, h, margin, [e + stroke_width for e in padding], layout)
+        super(Shape, self).__init__(round(x), round(y), w, h, margin, [e + stroke_width for e in padding], layout,
+                                    children)
         
     def stroke_and_fill(self, cr: cairo.Context, w, h):
         if self.dash:
@@ -119,10 +120,11 @@ class RoundedRectangle(Shape):
 
     def __init__(
             self, x, y, w, h, radius=10, stroke_width=3, stroke_src=COLOR_BLACK,
-            fill_src=COLOR_WHITE, layout=None, margin=(0, 0, 0, 0), padding=(0, 0, 0, 0)):
+            fill_src=COLOR_WHITE, layout=None, margin=(0, 0, 0, 0), padding=(0, 0, 0, 0), **kwargs):
         self.radius = radius
 
-        super(RoundedRectangle, self).__init__(x, y, w, h, stroke_width, stroke_src, fill_src, layout, margin, padding)
+        super(RoundedRectangle, self).__init__(x, y, w, h, stroke_width, stroke_src, fill_src, layout, margin, padding,
+                                               **kwargs)
 
     def _draw(self, surface: cairo.Surface, w, h):
         cr = cairo.Context(surface)

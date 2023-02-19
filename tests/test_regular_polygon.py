@@ -10,7 +10,7 @@ class TestRegularPolygon(ComponentRegressionTestCase):
     @staticmethod
     def generate_component(num_side, rotation, radius, stroke_width):
         
-        poly = RegularPolygon(0, 0, num_side, radius, rotation, stroke_width=stroke_width,
+        poly = RegularPolygon(0, 0, radius, num_side, rotation, stroke_width=stroke_width,
                               stroke_src=COLOR_RED, fill_src=COLOR_GREEN)
 
         return poly

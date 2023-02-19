@@ -59,7 +59,7 @@ class HorizontalFlowLayout(LayoutManager):
                 ch = '100%'
             if cw == FILL:
                 if i < len(children) - 1:
-                    raise LayoutError("Only the last child can have it's width set to FILL")
+                    raise LayoutError("Only the last child can have its width set to FILL")
 
                 cw = w_padded - w_margins - w_content
 

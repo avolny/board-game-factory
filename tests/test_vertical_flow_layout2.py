@@ -1,5 +1,5 @@
 from bgfactory.components.component import Container
-from bgfactory.components.constants import HALIGN_LEFT, INFER, HALIGN_CENTER, HALIGN_RIGHT, VALIGN_TOP, VALIGN_MIDDLE, \
+from bgfactory.components.constants import HALIGN_LEFT, HALIGN_CENTER, HALIGN_RIGHT, VALIGN_TOP, VALIGN_MIDDLE, \
     VALIGN_BOTTOM, FILL
 from bgfactory.components.layout.vertical_flow_layout import VerticalFlowLayout
 from bgfactory.components.shape import Rectangle

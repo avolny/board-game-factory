@@ -58,7 +58,7 @@ class VerticalFlowLayout(LayoutManager):
                 cw = '100%'
             if ch == FILL:
                 if i < len(children) - 1:
-                    raise LayoutError("Only the last child can have it's height set to FILL")
+                    raise LayoutError("Only the last child can have its height set to FILL")
                 
                 ch = h_padded - h_margins - h_content
 

@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from math import ceil
 from typing import Mapping
 from warnings import warn
 
@@ -9,7 +10,7 @@ import pangocffi as pango
 import pangocairocffi as pc
 
 from bgfactory.common.config import bgfconfig
-from bgfactory.components.component import Component
+from bgfactory.components.component import Component, DEBUG
 from bgfactory.components.constants import COLOR_BLACK, INFER, HALIGN_LEFT, VALIGN_TOP, \
     HALIGN_CENTER, HALIGN_RIGHT, VALIGN_MIDDLE, VALIGN_BOTTOM, FILL
 from bgfactory.components.layout.vertical_flow_layout import VerticalFlowLayout
@@ -142,7 +143,7 @@ class _TextComponent(Component):
         # print(self.halign, self.valign, x, y, xoffset, yoffset, wtext, htext)
         
         self._draw(surface, x, y, w, h)
-        
+
         return surface
 
 
@@ -384,7 +385,7 @@ class TextMarkup(_TextComponent):
         # print(ink.x / PANGO_SCALE, ink.y / PANGO_SCALE, ink.width / PANGO_SCALE, ink.height / PANGO_SCALE)
         # print(logical.x / PANGO_SCALE, logical.y / PANGO_SCALE, logical.width / PANGO_SCALE, logical.height / PANGO_SCALE)
 
-        return ink.x / PANGO_SCALE, logical.y / PANGO_SCALE, ink.width / PANGO_SCALE, logical.height / PANGO_SCALE
+        return logical.x / PANGO_SCALE, logical.y / PANGO_SCALE, logical.width / PANGO_SCALE, logical.height / PANGO_SCALE
 
     def _xml_to_plaintext(self, text):
         return ''.join(ElementTree.fromstring('<root>' + text + '</root>').itertext())
@@ -455,8 +456,8 @@ class TextUniform(_TextComponent):
         ink, logical = pc_layout.get_extents()
         # pc_layout.get_iter()
         
-        return ink.x / PANGO_SCALE - self.stroke_width, logical.y / PANGO_SCALE - self.stroke_width, \
-               ink.width / PANGO_SCALE * 1.021 + 2 * self.stroke_width, \
+        return logical.x / PANGO_SCALE - self.stroke_width, logical.y / PANGO_SCALE - self.stroke_width, \
+               logical.width / PANGO_SCALE * 1.021 + 2 * self.stroke_width, \
                logical.height / PANGO_SCALE + 2 * self.stroke_width
     
 if __name__ == '__main__':
