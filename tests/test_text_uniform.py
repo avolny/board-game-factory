@@ -19,7 +19,7 @@ class TestTextUniform(ComponentRegressionTestCase):
             fill_src=(0, 1, 0, 0.9), layout=VerticalFlowLayout(halign))
         
         font_desc = FontDescription(
-            "Arial", 24, pangocffi.Weight.BOLD, pangocffi.Style.OBLIQUE)
+            "Arial", 24, pangocffi.Weight.BOLD, pangocffi.Style.ITALIC)
         
         text = TextUniform(
             0, 0, textw, texth, TestTextUniform.TEXT[textid], font_desc, halign=halign, valign=valign,

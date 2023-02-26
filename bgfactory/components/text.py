@@ -425,6 +425,7 @@ class TextUniform(_TextComponent):
             cr.set_line_join(self.outline_line_join)
             pc.update_layout(cr, pc_layout)
             pc.layout_path(cr, pc_layout)
+            cr.close_path()
             cr.stroke()
 
         cr.save()
@@ -434,6 +435,7 @@ class TextUniform(_TextComponent):
         pc.update_layout(cr, pc_layout)
         pc.layout_path(cr, pc_layout)
         cr.set_tolerance(bgfconfig.tolerance)
+        cr.close_path()
         cr.fill()
         cr.restore()
         profile()

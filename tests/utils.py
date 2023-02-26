@@ -36,8 +36,8 @@ def assert_images_equal(im1: Image, im2: Image, ref_path, args):
                 diff = Image.fromarray(np.abs(np.asarray(im1) - np.asarray(im2))[:, :, :3].mean(axis=2).astype(np.uint8), mode='L')
                 diff.show(title='difference ' + ref_path)
 
-                # im1.show(title="reference " + ref_path)
-                # im2.show(title="tested " + ref_path)
+                im1.show(title="reference " + ref_path)
+                im2.show(title="tested " + ref_path)
         
             if ASSERT_ON:
                 assert pix1 == pix2, str(pix1) + " " + str(pix2) + " " + ref_path

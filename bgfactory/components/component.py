@@ -20,7 +20,7 @@ class Component(ABC):
         self.w = w
         self.h = h
         self.margin = margin
-        
+
     @abstractmethod
     def draw(self, w, h):
         profile('cairo.ImageSurface')
