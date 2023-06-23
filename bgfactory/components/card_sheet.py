@@ -1,7 +1,7 @@
 from os import makedirs
 from pathlib import Path
 
-from bgfactory.components.constants import COLOR_WHITE, INFER
+from bgfactory.components.constants import COLOR_WHITE, INFER, COLOR_BLACK
 from bgfactory.components.shape import Rectangle, Line
 from bgfactory.components.text import TextUniform, FontDescription
 from bgfactory.components.utils import A4_WIDTH_MM, A4_HEIGHT_MM, mm_to_pixels
@@ -9,7 +9,8 @@ from bgfactory.components.utils import A4_WIDTH_MM, A4_HEIGHT_MM, mm_to_pixels
 
 class CardSheet(Rectangle):
     
-    def __init__(self, w, h, cards, reversed=False, cutlines=True, page=None):
+    def __init__(self, w, h, cards, reversed=False, cutlines=True, page=None,
+                 overspill_border_width=0, overspill_border_color=COLOR_BLACK):
 
         super(CardSheet, self).__init__(0, 0, w, h, 0, fill_src=COLOR_WHITE)
 
@@ -30,6 +31,12 @@ class CardSheet(Rectangle):
         
         padx = (w - self.ncols * cw) // 2
         pady = (h - self.nrows * ch) // 2
+
+        overspill_rect = Rectangle(padx - overspill_border_width, pady - overspill_border_width, w - 2 * padx + 2 * overspill_border_width, h - 2 * pady + 2 * overspill_border_width,
+                                   stroke_src=overspill_border_color,
+                                   stroke_width=overspill_border_width * 2)
+
+        self.add(overspill_rect)
         
         # print(padx, pady)
         # print(h, ch)
@@ -72,6 +79,7 @@ class CardSheet(Rectangle):
 
 def make_printable_sheets(
         components, dpi=300, print_margin_hor_mm=5, print_margin_ver_mm=5, page_width_mm=None, page_height_mm=None,
+        overspill_border_mm=1, overspill_border_src=COLOR_BLACK,
         orientation='auto', cutlines=True, page_numbers=True, out_dir_path=None, out_file_prefix='sheet'):
     if page_width_mm is None or page_height_mm is None:
         page_width_mm = A4_WIDTH_MM
@@ -107,7 +115,12 @@ def make_printable_sheets(
     page = 1
     for i in range(0, len(components), components_per_page):
         sheet = CardSheet(
-            w, h, components[i:i + components_per_page], cutlines=cutlines, page=page if page_numbers else None)
+            w, h, components[i:i + components_per_page],
+            cutlines=cutlines,
+            page=page if page_numbers else None,
+            overspill_border_width=mm_to_pixels(overspill_border_mm, dpi),
+            overspill_border_color=overspill_border_src
+        )
         page += 1
 
         sheets.append(sheet)
