@@ -369,7 +369,7 @@ class TextMarkup(_TextComponent):
         pc_layout = pc.create_layout(cr)
         if w is not None:
             pc_layout.width = int(w) * PANGO_SCALE
-        pc_layout.set_font_description = self.font_desc._desc
+        pc_layout.font_description = self.font_desc._desc
         pc_layout.apply_markup(self.text)
         pc_layout.spacing = int(self.spacing * self.font_desc.size * PANGO_SCALE)
         pc_layout.alignment = convert_to_pango_align(self.halign)
