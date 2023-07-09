@@ -89,8 +89,9 @@ class Container(Component):
         pass
     
     def draw(self, w, h):
-        
-        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, int(w), int(h))
+
+        surface = super(Container, self).draw(w, h)
+        # surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, int(w), int(h))
         
         self._draw(surface, w, h)
         self.layout._draw(surface, w, h)
