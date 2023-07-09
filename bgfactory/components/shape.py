@@ -67,6 +67,12 @@ class Line(Shape):
         self.y1 = y1 - y
         self.x2 = x2 - x
         self.y2 = y2 - y
+
+        if x < 0:
+            raise ValueError(f'Offset line to the right at least by {abs(x)} pixels.')
+
+        if y < 0:
+            raise ValueError(f'offset line down by {abs(y)} pixels')
         
         super(Line, self).__init__(x, y, w, h, stroke_width=stroke_width, stroke_src=stroke_src, dash=dash,
                                    line_cap=line_cap, fill_src=None)
