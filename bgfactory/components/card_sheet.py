@@ -67,7 +67,7 @@ class CardSheet(Rectangle):
                 self.add(Line(w - padx + pad_inside, pady + ch * i, w - pad_outside, pady + ch * i,
                               stroke_width=2, dash={'dashes': [10, 5]}))
                 
-            for i in range(self.nrows + 1):
+            for i in range(self.ncols + 1):
                 self.add(Line(padx + cw * i, pad_outside, padx + cw * i, pady - pad_inside, 
                               stroke_width=2, dash={'dashes': [10, 5]}))
                 self.add(Line(padx + cw * i, h - pady + pad_inside, padx + cw * i, h - pad_outside,
