@@ -396,7 +396,7 @@ class TextUniform(_TextComponent):
     A basic Text component that assumes uniform text style. Allows for text outline,
     for making pretty titles etc.
     """
-    dummy_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 0, 0)
+    dummy_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 1000, 1000)
     
     def __init__(self, x, y, w, h, text, font_description=FontDescription(), spacing=0.115, halign=HALIGN_LEFT,
                  valign=VALIGN_TOP, fill_src=COLOR_BLACK, stroke_width=0, stroke_src=None,
